@@ -365,6 +365,27 @@ function closeSupabaseSetup() {
   document.getElementById('supabaseModal').style.display = 'none';
 }
 
+const DEFAULT_VERCEL_LOG_ENDPOINT = 'https://a-iphasia-zs9i.vercel.app/api/log';
+
+async function uploadToServerless(logs) {
+  const url = DEFAULT_VERCEL_LOG_ENDPOINT;
+  if (!url || url.includes('<your-vercel-app>')) {
+    throw new Error('Vercel endpoint is niet gezet. Vervang DEFAULT_VERCEL_LOG_ENDPOINT met je URL.');
+  }
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({logs})
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Serverless error: ${response.status} - ${errorText}`);
+  }
+  return response.json();
+}
+
 async function uploadToSupabase(logs) {
   const config = getSupabaseConfig();
   if (!config || !config.url || !config.key) {
@@ -479,21 +500,30 @@ async function exportLogs() {
       return;
     }
     
-    // Try to upload to Supabase first
-    const config = getSupabaseConfig();
-    if (config) {
-      try {
-        await uploadToSupabase(logs);
-        alert(`✅ ${logs.length} logs succesvol naar Supabase geüpload!`);
-        clearTapLogs();
-        return;
-      } catch (supabaseError) {
-        console.warn('Supabase upload failed:', supabaseError);
-        const continueOffline = confirm(`Supabase upload mislukt: ${supabaseError.message}\n\nWil je in plaats daarvan lokaal downloaden?`);
-        if (!continueOffline) return;
-      }
+    // Try to upload to Vercel-serverless first
+    try {
+      await uploadToServerless(logs);
+      alert(`✅ ${logs.length} logs succesvol naar Vercel-serverless geüpload!`);
+      clearTapLogs();
+      return;
+    } catch (serverError) {
+      console.warn('Serverless upload failed:', serverError);
+      const continueFallback = confirm(`Serverless upload mislukt: ${serverError.message}\n\nProbeer Supabase als fallback?`);
+      if (!continueFallback) throw serverError;
     }
-    
+
+    // Fallback: try Supabase
+    try {
+      await uploadToSupabase(logs);
+      alert(`✅ ${logs.length} logs succesvol naar Supabase geüpload!`);
+      clearTapLogs();
+      return;
+    } catch (supabaseError) {
+      console.warn('Supabase upload failed:', supabaseError);
+      const continueOffline = confirm(`Supabase upload mislukt: ${supabaseError.message}\n\nWil je in plaats daarvan lokaal downloaden?`);
+      if (!continueOffline) return;
+    }
+
     // Fallback: try File System Access API
     try {
       await saveLogsToFolder();
