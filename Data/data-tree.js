@@ -263,3 +263,6 @@ window.tree = [
     ]
   },
 ];
+
+// Flag to indicate the tree data has been loaded
+window.treeLoaded = true;

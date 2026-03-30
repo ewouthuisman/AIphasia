@@ -297,8 +297,38 @@ header {
 <div id="backWrap"></div>
 <div class="grid-wrap"><div class="grid" id="grid"></div></div>
 
-<script src="Data/data-tree.js"></script>
+<script src="/Data/data-tree.js"></script>
+
 <script>
+(function() {
+  // Wait for the script to load and tree to be available
+  let attempts = 0;
+  function checkTree() {
+    if ((window.tree && window.tree.length > 0) || window.treeLoaded) {
+      init();
+    } else if (attempts < 50) { // Max 500ms
+      attempts++;
+      setTimeout(checkTree, 10);
+    } else {
+      console.error('Tree data not loaded after 500ms, trying fallback');
+      // Fallback: try loading with relative path
+      const script = document.createElement('script');
+      script.src = 'Data/data-tree.js';
+      script.onload = function() {
+        setTimeout(function() {
+          if ((window.tree && window.tree.length > 0) || window.treeLoaded) {
+            init();
+          } else {
+            console.error('Fallback also failed');
+          }
+        }, 10);
+      };
+      document.head.appendChild(script);
+    }
+  }
+  checkTree();
+})();
+</script>
 const tree = window.tree || [];
 // ═══════════════════════════════════════════
 // DATA TREE (extern geladen via data-tree.js)
@@ -503,10 +533,6 @@ let viewStartTime = Date.now();
 // INIT
 // ═══════════════════════════════════════════
 function init() {
-  if (!tree || tree.length === 0) {
-    setTimeout(init, 100);
-    return;
-  }
   renderFavs();
   renderBreadcrumb();
   renderGrid(tree, null);
@@ -692,16 +718,6 @@ function speakText() {
 
 if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = () => {};
 
-// Wait for data-tree.js to load
-function checkTreeLoaded() {
-  if (window.tree && window.tree.length > 0) {
-    init();
-  } else {
-    setTimeout(checkTreeLoaded, 50);
-  }
-}
-
-checkTreeLoaded();
 </script>
 </body>
 </html>
