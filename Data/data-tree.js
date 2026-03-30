@@ -203,12 +203,37 @@ window.tree = [
         { emoji:'💈', label:'Naar de kapper', say:'Ik wil naar de kapper.' },
         { emoji:'🛒', label:'Boodschappen doen', say:'Er moeten boodschappen gedaan worden.' },
       ]},
-      { id:'thuis_hulp', emoji:'🛋️', label:'Thuis comfort', children:[
-        { emoji:'🛋️', label:'Help me zitten', say:'Kun je me helpen met gaan zitten?' },
-        { emoji:'🛏️', label:'Help me naar bed', say:'Kun je me helpen naar bed te gaan?' },
-        { emoji:'🧸', label:'Kussen / deken', say:'Kun je mijn kussen of deken aanpassen?' },
-        { emoji:'📱', label:'Telefoon pakken', say:'Kun je mijn telefoon voor me pakken?' },
-        { emoji:'👓', label:'Bril pakken', say:'Kun je mijn bril voor me pakken?' },
+      { id:'Hulpen', emoji:'🛋️', label:'Thuis comfort', children:[
+        { id: 'Lobke', emoji:'👤', label:'Lobke', children:[
+          { emoji:'🔊', label:'Say the name out loud', say:'Lobke' },
+          { emoji:'❓', label:'Question to be defined 2', say:'Placeholder question 2 for Lobke' },
+          { emoji:'❓', label:'Question to be defined 3', say:'Placeholder question 3 for Lobke' },
+        ]},
+        { id: 'Jolanda', emoji:'👤', label:'Jolanda', children:[
+          { emoji:'🔊', label:'Say the name out loud', say:'Jolanda' },
+          { emoji:'❓', label:'Question to be defined 2', say:'Placeholder question 2 for Jolanda' },
+          { emoji:'❓', label:'Question to be defined 3', say:'Placeholder question 3 for Jolanda' },
+        ]},
+        { id: 'Erik', emoji:'👤', label:'Erik', children:[
+          { emoji:'🔊', label:'Say the name out loud', say:'Erik' },
+          { emoji:'❓', label:'Question to be defined 2', say:'Placeholder question 2 for Erik' },
+          { emoji:'❓', label:'Question to be defined 3', say:'Placeholder question 3 for Erik' },
+        ]},
+        { id: 'Justien', emoji:'👤', label:'Justien', children:[
+          { emoji:'🔊', label:'Say the name out loud', say:'Justien' },
+          { emoji:'❓', label:'Question to be defined 2', say:'Placeholder question 2 for Justien' },
+          { emoji:'❓', label:'Question to be defined 3', say:'Placeholder question 3 for Justien' },
+        ]},
+        { id: 'Henriëtte', emoji:'👤', label:'Henriëtte', children:[
+          { emoji:'🔊', label:'Say the name out loud', say:'Henriëtte' },
+          { emoji:'❓', label:'Question to be defined 2', say:'Placeholder question 2 for Henriëtte' },
+          { emoji:'❓', label:'Question to be defined 3', say:'Placeholder question 3 for Henriëtte' },
+        ]},
+        { id: 'Joke', emoji:'👤', label:'Joke', children:[
+          { emoji:'🔊', label:'Say the name out loud', say:'Joke' },
+          { emoji:'❓', label:'Question to be defined 2', say:'Placeholder question 2 for Joke' },
+          { emoji:'❓', label:'Question to be defined 3', say:'Placeholder question 3 for Joke' },
+        ]},
       ]},
       { id:'zorg_instructies', emoji:'📋', label:'Zorg instructies', children:[
         { emoji:'📋', label:'Lees instructies voor', say:'Kun je de zorginstructies voor me voorlezen?' },
