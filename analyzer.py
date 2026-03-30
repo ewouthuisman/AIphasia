@@ -4,7 +4,7 @@ from supabase import create_client
 import os
 
 SUPABASE_URL  = 'https://absdasswruhhtaguenfz.supabase.co'
-SUPABASE_KEY = os.getenv("SUPABASE_KEY");
+SUPABASE_KEY = os.getenv('SUPABASE_KEY');
 
 client = create_client(SUPABASE_URL, SUPABASE_KEY)
 data = client.table('tap_logs').select('*').execute()
