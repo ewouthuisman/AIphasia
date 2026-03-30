@@ -298,40 +298,330 @@ header {
 <div class="grid-wrap"><div class="grid" id="grid"></div></div>
 
 <script>
-(function() {
-  const script = document.createElement('script');
-  script.src = '/Data/data-tree.js';
-  script.onload = function() {
-    // Script loaded, tree should be available
-    setTimeout(function() {
-      if ((window.tree && window.tree.length > 0) || window.treeLoaded) {
-        init();
-      } else {
-        console.error('Tree data not available after script load');
-      }
-    }, 1);
-  };
-  script.onerror = function() {
-    console.error('Failed to load /Data/data-tree.js, trying relative path');
-    const fallbackScript = document.createElement('script');
-    fallbackScript.src = 'Data/data-tree.js';
-    fallbackScript.onload = function() {
-      setTimeout(function() {
-        if ((window.tree && window.tree.length > 0) || window.treeLoaded) {
-          init();
-        } else {
-          console.error('Fallback also failed');
-        }
-      }, 1);
-    };
-    fallbackScript.onerror = function() {
-      console.error('Failed to load Data/data-tree.js from all paths');
-    };
-    document.head.appendChild(fallbackScript);
-  };
-  document.head.appendChild(script);
-})();
-</script>
+// ═══════════════════════════════════════════
+// INLINE TREE DATA (from Data/data-tree.js)
+// ═══════════════════════════════════════════
+window.tree = [
+  {
+    id:'eten', emoji:'🍽️', label:'Eten & drinken', theme:'green', children:[
+      { id:'ontbijt', emoji:'🌅', label:'Ontbijt', children:[
+        { emoji:'🍞', label:'Boterham', say:'Ik wil graag een boterham voor het ontbijt.' },
+        { emoji:'🍞', label:'Boterham instructies', say:'Snijd de boterham doormidden en voeg twee soorten beleg toe.' },
+        { emoji:'🥐', label:'Croissant', say:'Ik wil graag een croissant.' },
+        { emoji:'🥚', label:'Ei', say:'Ik wil graag een ei.' },
+        { emoji:'🥣', label:'Muesli / havermout', say:'Ik wil graag muesli of havermout.' },
+        { emoji:'🍳', label:'Gebakken ei', say:'Ik wil graag een gebakken ei.' },
+        { emoji:'🧀', label:'Kaas', say:'Ik wil graag kaas op mijn brood.' },
+        { emoji:'🍯', label:'Jam', say:'Ik wil graag jam op mijn brood.' },
+        { emoji:'🥛', label:'Glas melk', say:'Ik wil graag een glas melk.' },
+        { emoji:'🍊', label:'Sap', say:'Ik wil graag een glas sap.' },
+      ]},
+      { id:'lunch', emoji:'🥪', label:'Lunch', children:[
+        { emoji:'🥪', label:'Boterham', say:'Ik wil graag een boterham voor de lunch.' },
+        { emoji:'🍞', label:'Boterham instructies', say:'Snijd de boterham doormidden en voeg twee soorten beleg toe.' },
+        { emoji:'🥗', label:'Salade', say:'Ik wil graag een salade.' },
+        { emoji:'🍲', label:'Soep', say:'Ik wil graag een kom soep.' },
+        { emoji:'🧀', label:'Kaas', say:'Ik wil graag kaas op mijn boterham.' },
+        { emoji:'🥩', label:'Vleeswaren', say:'Ik wil graag vleeswaren op mijn brood.' },
+        { emoji:'🥒', label:'Groente erbij', say:'Doe er maar wat groente bij.' },
+      ]},
+      { id:'avondeten', emoji:'🍛', label:'Avondeten', children:[
+        { id:'vlees', emoji:'🥩', label:'Vlees', children:[
+          { emoji:'🥩', label:'Biefstuk', say:'Ik wil graag biefstuk vanavond.' },
+          { emoji:'🍗', label:'Kip', say:'Ik wil graag kip vanavond.' },
+          { emoji:'🐷', label:'Varkensvlees', say:'Ik wil graag varkensvlees vanavond.' },
+          { emoji:'🥓', label:'Spek', say:'Ik wil graag spek erbij.' },
+          { emoji:'🌭', label:'Worst', say:'Ik wil graag worst vanavond.' },
+          { emoji:'🦆', label:'Eend / gevogelte', say:'Ik wil graag gevogelte vanavond.' },
+        ]},
+        { id:'vis', emoji:'🐟', label:'Vis', children:[
+          { emoji:'🐟', label:'Vis (algemeen)', say:'Ik wil graag vis vanavond.' },
+          { emoji:'🍣', label:'Zalm', say:'Ik wil graag zalm vanavond.' },
+          { emoji:'🐠', label:'Forel', say:'Ik wil graag forel vanavond.' },
+          { emoji:'🐡', label:'Makreel', say:'Ik wil graag makreel vanavond.' },
+        ]},
+        { id:'groenten', emoji:'🥦', label:'Groenten', children:[
+          { emoji:'🥦', label:'Broccoli', say:'Ik wil graag broccoli erbij.' },
+          { emoji:'🥕', label:'Wortel', say:'Ik wil graag wortel erbij.' },
+          { emoji:'🫛', label:'Sperziebonen', say:'Ik wil graag sperziebonen erbij.' },
+          { emoji:'🧅', label:'Ui', say:'Doe er maar ui bij.' },
+          { emoji:'🫑', label:'Paprika', say:'Ik wil graag paprika erbij.' },
+          { emoji:'🍆', label:'Aubergine', say:'Ik wil graag aubergine erbij.' },
+          { emoji:'🥬', label:'Spinazie', say:'Ik wil graag spinazie erbij.' },
+          { emoji:'🌽', label:'Mais', say:'Ik wil graag mais erbij.' },
+          { emoji:'🍅', label:'Tomaat', say:'Ik wil graag tomaat erbij.' },
+        ]},
+        { id:'bijgerechten', emoji:'🍟', label:'Bijgerechten', children:[
+          { emoji:'🍟', label:'Frietjes', say:'Ik wil graag frietjes erbij.' },
+          { emoji:'🍚', label:'Rijst', say:'Ik wil graag rijst erbij.' },
+          { emoji:'🍝', label:'Pasta', say:'Ik wil graag pasta erbij.' },
+          { emoji:'🥔', label:'Aardappelen', say:'Ik wil graag aardappelen erbij.' },
+          { emoji:'🍞', label:'Brood', say:'Ik wil graag brood erbij.' },
+        ]},
+      ]},
+      { id:'drinken', emoji:'🥤', label:'Drinken', children:[
+        { emoji:'🥛', label:'Melk', say:'Ik wil graag melk.' },
+        { emoji:'☕', label:'Koffie', say:'Ik wil graag koffie.' },
+        { emoji:'🍵', label:'Thee', say:'Ik wil graag thee.' },
+        { emoji:'🧃', label:'Vruchtensap', say:'Ik wil graag vruchtensap.' },
+        { emoji:'🥤', label:'Water', say:'Ik wil graag water.' },
+        { emoji:'🧊', label:'IJsthee', say:'Ik wil graag ijsthee.' },
+        { emoji:'🍹', label:'Frisdrank', say:'Ik wil graag frisdrank.' },
+        { emoji:'🍷', label:'Wijn', say:'Ik wil graag wijn.' },
+        { emoji:'🍺', label:'Bier', say:'Ik wil graag bier.' },
+      ]},
+      { id:'snacks', emoji:'🍿', label:'Snacks', children:[
+        { emoji:'🍿', label:'Popcorn', say:'Ik wil graag popcorn.' },
+        { emoji:'🍪', label:'Koekje', say:'Ik wil graag een koekje.' },
+        { emoji:'🍫', label:'Chocolade', say:'Ik wil graag chocolade.' },
+        { emoji:'🍬', label:'Snoep', say:'Ik wil graag snoep.' },
+        { emoji:'🥨', label:'Pretzel', say:'Ik wil graag een pretzel.' },
+        { emoji:'🥜', label:'Noten', say:'Ik wil graag noten.' },
+        { emoji:'🍩', label:'Donut', say:'Ik wil graag een donut.' },
+        { emoji:'🧁', label:'Cupcake', say:'Ik wil graag een cupcake.' },
+      ]},
+    ]
+  },
+  {
+    id:'huis', emoji:'🏠', label:'Huis & wonen', theme:'blue', children:[
+      { id:'kamers', emoji:'🚪', label:'Kamers', children:[
+        { emoji:'🛏️', label:'Slaapkamer', say:'Ik wil graag naar de slaapkamer.' },
+        { emoji:'🛋️', label:'Woonkamer', say:'Ik wil graag naar de woonkamer.' },
+        { emoji:'🍳', label:'Keuken', say:'Ik wil graag naar de keuken.' },
+        { emoji:'🚿', label:'Badkamer', say:'Ik wil graag naar de badkamer.' },
+        { emoji:'🚪', label:'Hal', say:'Ik wil graag naar de hal.' },
+        { emoji:'📺', label:'TV-kamer', say:'Ik wil graag naar de TV-kamer.' },
+      ]},
+      { id:'meubels', emoji:'🪑', label:'Meubels', children:[
+        { emoji:'🛋️', label:'Bank', say:'Ik wil graag op de bank zitten.' },
+        { emoji:'🛏️', label:'Bed', say:'Ik wil graag in bed liggen.' },
+        { emoji:'🪑', label:'Stoel', say:'Ik wil graag in een stoel zitten.' },
+        { emoji:'🪑', label:'Eetkamerstoel', say:'Ik wil graag aan tafel zitten.' },
+        { emoji:'🛏️', label:'Boxspring', say:'Ik wil graag op de boxspring liggen.' },
+        { emoji:'🪑', label:'Kruk', say:'Ik wil graag op een kruk zitten.' },
+      ]},
+      { id:'elektronica', emoji:'📺', label:'Elektronica', children:[
+        { emoji:'📺', label:'Televisie', say:'Ik wil graag televisie kijken.' },
+        { emoji:'📻', label:'Radio', say:'Ik wil graag naar de radio luisteren.' },
+        { emoji:'💻', label:'Computer', say:'Ik wil graag op de computer werken.' },
+        { emoji:'📱', label:'Telefoon', say:'Ik wil graag de telefoon gebruiken.' },
+        { emoji:'🎮', label:'Speelcomputer', say:'Ik wil graag gamen.' },
+        { emoji:'🎵', label:'Muziekspeler', say:'Ik wil graag naar muziek luisteren.' },
+      ]},
+      { id:'verlichting', emoji:'💡', label:'Verlichting', children:[
+        { emoji:'💡', label:'Lamp aan', say:'Doe alsjeblieft het licht aan.' },
+        { emoji:'🌙', label:'Lamp uit', say:'Doe alsjeblieft het licht uit.' },
+        { emoji:'💡', label:'Staande lamp', say:'Ik wil graag de staande lamp aanzetten.' },
+        { emoji:'💡', label:'Bureaulamp', say:'Ik wil graag de bureaulamp aanzetten.' },
+        { emoji:'💡', label:'Sfeerlamp', say:'Ik wil graag de sfeerlamp aanzetten.' },
+        { emoji:'💡', label:'Nachtlampje', say:'Ik wil graag het nachtlampje aanzetten.' },
+      ]},
+      { id:'schoonmaken', emoji:'🧽', label:'Schoonmaken', children:[
+        { emoji:'🧽', label:'Schoonmaken', say:'Ik wil graag schoonmaken.' },
+        { emoji:'🧹', label:'Vegen', say:'Ik wil graag vegen.' },
+        { emoji:'🪣', label:'Dweilen', say:'Ik wil graag dweilen.' },
+        { emoji:'🧴', label:'Schoonmaakmiddel', say:'Ik heb schoonmaakmiddel nodig.' },
+        { emoji:'🗑️', label:'Vuilnisbak legen', say:'Ik wil graag de vuilnisbak legen.' },
+        { emoji:'🧺', label:'Wassen', say:'Ik wil graag de was doen.' },
+      ]},
+    ]
+  },
+  {
+    id:'huisdieren', emoji:'🐕', label:'Huisdieren', theme:'purple', children:[
+      { id:'hond', emoji:'🐕', label:'Hond', children:[
+        { emoji:'🐕', label:'Hond uitlaten', say:'Ik wil graag de hond uitlaten.' },
+        { emoji:'🍖', label:'Hond voeren', say:'Ik wil graag de hond voeren.' },
+        { emoji:'🦴', label:'Hond spelen', say:'Ik wil graag met de hond spelen.' },
+        { emoji:'🛁', label:'Hond wassen', say:'Ik wil graag de hond wassen.' },
+        { emoji:'🐕', label:'Hond aaien', say:'Ik wil graag de hond aaien.' },
+        { emoji:'🏥', label:'Hond naar dierenarts', say:'Ik wil graag met de hond naar de dierenarts.' },
+      ]},
+      { id:'kat', emoji:'🐱', label:'Kat', children:[
+        { emoji:'🐱', label:'Kat aaien', say:'Ik wil graag de kat aaien.' },
+        { emoji:'🍖', label:'Kat voeren', say:'Ik wil graag de kat voeren.' },
+        { emoji:'🦴', label:'Kat spelen', say:'Ik wil graag met de kat spelen.' },
+        { emoji:'🛁', label:'Kat wassen', say:'Ik wil graag de kat wassen.' },
+        { emoji:'🐱', label:'Kat knuffelen', say:'Ik wil graag de kat knuffelen.' },
+        { emoji:'🏥', label:'Kat naar dierenarts', say:'Ik wil graag met de kat naar de dierenarts.' },
+      ]},
+      { id:'vogel', emoji:'🐦', label:'Vogel', children:[
+        { emoji:'🐦', label:'Vogel voeren', say:'Ik wil graag de vogel voeren.' },
+        { emoji:'🦴', label:'Vogel spelen', say:'Ik wil graag met de vogel spelen.' },
+        { emoji:'🛁', label:'Vogelkooi schoonmaken', say:'Ik wil graag de vogelkooi schoonmaken.' },
+        { emoji:'🐦', label:'Vogel aaien', say:'Ik wil graag de vogel aaien.' },
+        { emoji:'🏥', label:'Vogel naar dierenarts', say:'Ik wil graag met de vogel naar de dierenarts.' },
+      ]},
+      { id:'vis', emoji:'🐠', label:'Vis', children:[
+        { emoji:'🍖', label:'Vis voeren', say:'Ik wil graag de vis voeren.' },
+        { emoji:'🛁', label:'Vissenkom schoonmaken', say:'Ik wil graag de vissenkom schoonmaken.' },
+        { emoji:'🏥', label:'Vis naar dierenarts', say:'Ik wil graag met de vis naar de dierenarts.' },
+      ]},
+      { id:'konijn', emoji:'🐰', label:'Konijn', children:[
+        { emoji:'🐰', label:'Konijn aaien', say:'Ik wil graag het konijn aaien.' },
+        { emoji:'🍖', label:'Konijn voeren', say:'Ik wil graag het konijn voeren.' },
+        { emoji:'🦴', label:'Konijn spelen', say:'Ik wil graag met het konijn spelen.' },
+        { emoji:'🛁', label:'Konijn wassen', say:'Ik wil graag het konijn wassen.' },
+        { emoji:'🏥', label:'Konijn naar dierenarts', say:'Ik wil graag met het konijn naar de dierenarts.' },
+      ]},
+    ]
+  },
+  {
+    id:'familie', emoji:'👨‍👩‍👧‍👦', label:'Familie & vrienden', theme:'amber', children:[
+      { id:'familieleden', emoji:'👨‍👩‍👧‍👦', label:'Familieleden', children:[
+        { emoji:'👨', label:'Papa', say:'Ik wil graag met papa praten.' },
+        { emoji:'👩', label:'Mama', say:'Ik wil graag met mama praten.' },
+        { emoji:'👦', label:'Broer', say:'Ik wil graag met mijn broer praten.' },
+        { emoji:'👧', label:'Zus', say:'Ik wil graag met mijn zus praten.' },
+        { emoji:'👴', label:'Opa', say:'Ik wil graag met opa praten.' },
+        { emoji:'👵', label:'Oma', say:'Ik wil graag met oma praten.' },
+        { emoji:'👨‍👩‍👧‍👦', label:'Gezin', say:'Ik wil graag met het gezin praten.' },
+      ]},
+      { id:'vrienden', emoji:'👫', label:'Vrienden', children:[
+        { emoji:'👫', label:'Vriend(in)', say:'Ik wil graag met mijn vriend(in) praten.' },
+        { emoji:'👬', label:'Vrienden', say:'Ik wil graag met mijn vrienden praten.' },
+        { emoji:'👭', label:'Vriendinnen', say:'Ik wil graag met mijn vriendinnen praten.' },
+        { emoji:'🏫', label:'Schoolvrienden', say:'Ik wil graag met mijn schoolvrienden praten.' },
+        { emoji:'🏢', label:'Collega\'s', say:'Ik wil graag met mijn collega\'s praten.' },
+      ]},
+      { id:'contact', emoji:'📞', label:'Contact', children:[
+        { emoji:'📞', label:'Bellen', say:'Ik wil graag iemand bellen.' },
+        { emoji:'💬', label:'Appen', say:'Ik wil graag iemand appen.' },
+        { emoji:'📧', label:'E-mailen', say:'Ik wil graag iemand e-mailen.' },
+        { emoji:'📱', label:'Videobellen', say:'Ik wil graag videobellen.' },
+        { emoji:'📝', label:'Brief schrijven', say:'Ik wil graag een brief schrijven.' },
+      ]},
+    ]
+  },
+  {
+    id:'hulp', emoji:'🆘', label:'Hulp & ondersteuning', theme:'warm', children:[
+      { id:'medische_hulp', emoji:'🏥', label:'Medische hulp', children:[
+        { emoji:'🏥', label:'Dokter', say:'Ik heb medische hulp nodig.' },
+        { emoji:'🚑', label:'Ambulance', say:'Bel alsjeblieft een ambulance.' },
+        { emoji:'💊', label:'Medicijnen', say:'Ik heb mijn medicijnen nodig.' },
+        { emoji:'🩹', label:'Pleister', say:'Ik heb een pleister nodig.' },
+        { emoji:'🌡️', label:'Temperatuur meten', say:'Ik wil graag mijn temperatuur meten.' },
+        { emoji:'💉', label:'Injectie', say:'Ik heb een injectie nodig.' },
+      ]},
+      { id:'praktische_hulp', emoji:'🛠️', label:'Praktische hulp', children:[
+        { emoji:'🛠️', label:'Reparatie', say:'Ik heb hulp nodig bij een reparatie.' },
+        { emoji:'🔧', label:'Gereedschap', say:'Ik heb gereedschap nodig.' },
+        { emoji:'🧹', label:'Schoonmaken', say:'Ik heb hulp nodig bij schoonmaken.' },
+        { emoji:'🧺', label:'Wassen', say:'Ik heb hulp nodig bij de was.' },
+        { emoji:'🍳', label:'Koken', say:'Ik heb hulp nodig bij koken.' },
+        { emoji:'🚗', label:'Autorijden', say:'Ik heb hulp nodig bij autorijden.' },
+      ]},
+      { id:'emotionele_hulp', emoji:'🤗', label:'Emotionele hulp', children:[
+        { emoji:'🤗', label:'Knuffel', say:'Ik wil graag een knuffel.' },
+        { emoji:'💬', label:'Praten', say:'Ik wil graag praten.' },
+        { emoji:'😊', label:'Lachen', say:'Ik wil graag lachen.' },
+        { emoji:'😢', label:'Huilen', say:'Ik wil graag huilen.' },
+        { emoji:'😴', label:'Rust', say:'Ik heb rust nodig.' },
+        { emoji:'🎵', label:'Muziek', say:'Ik wil graag naar muziek luisteren.' },
+      ]},
+      { id:'noodgevallen', emoji:'🚨', label:'Noodgevallen', children:[
+        { emoji:'🚨', label:'Politie', say:'Bel alsjeblieft de politie.' },
+        { emoji:'🔥', label:'Brandweer', say:'Bel alsjeblieft de brandweer.' },
+        { emoji:'🚑', label:'Ambulance', say:'Bel alsjeblieft een ambulance.' },
+        { emoji:'🆘', label:'SOS', say:'Dit is een noodgeval!' },
+        { emoji:'📞', label:'Alarmnummer', say:'Bel alsjeblieft het alarmnummer.' },
+      ]},
+    ]
+  },
+  {
+    id:'medisch', emoji:'⚕️', label:'Medisch', theme:'green', children:[
+      { id:'lichaam', emoji:'🫀', label:'Lichaam', children:[
+        { emoji:'🫀', label:'Hart', say:'Ik heb pijn in mijn hart.' },
+        { emoji:'🧠', label:'Hoofd', say:'Ik heb hoofdpijn.' },
+        { emoji:'🦷', label:'Tanden', say:'Ik heb pijn in mijn tanden.' },
+        { emoji:'👂', label:'Oren', say:'Ik heb pijn in mijn oren.' },
+        { emoji:'👃', label:'Neus', say:'Ik heb pijn in mijn neus.' },
+        { emoji:'👄', label:'Mond', say:'Ik heb pijn in mijn mond.' },
+        { emoji:'🦶', label:'Voeten', say:'Ik heb pijn in mijn voeten.' },
+        { emoji:'🦵', label:'Benen', say:'Ik heb pijn in mijn benen.' },
+        { emoji:'💪', label:'Armen', say:'Ik heb pijn in mijn armen.' },
+        { emoji:'🫁', label:'Longen', say:'Ik heb pijn in mijn longen.' },
+        { emoji:'🫄', label:'Buik', say:'Ik heb pijn in mijn buik.' },
+        { emoji:'👀', label:'Ogen', say:'Ik heb pijn in mijn ogen.' },
+      ]},
+      { id:'ziekten', emoji:'🤒', label:'Ziekten', children:[
+        { emoji:'🤒', label:'Koorts', say:'Ik heb koorts.' },
+        { emoji:'🤧', label:'Verkoudheid', say:'Ik ben verkouden.' },
+        { emoji:'🤢', label:'Misselijk', say:'Ik ben misselijk.' },
+        { emoji:'🤮', label:'Overgeven', say:'Ik moet overgeven.' },
+        { emoji:'😴', label:'Vermoeid', say:'Ik ben erg vermoeid.' },
+        { emoji:'😷', label:'Griep', say:'Ik heb griep.' },
+        { emoji:'🤕', label:'Hoofdwond', say:'Ik heb een hoofdwond.' },
+        { emoji:'🩹', label:'Wond', say:'Ik heb een wond.' },
+      ]},
+      { id:'medicijnen', emoji:'💊', label:'Medicijnen', children:[
+        { emoji:'💊', label:'Pillen', say:'Ik moet mijn pillen innemen.' },
+        { emoji:'💉', label:'Injectie', say:'Ik heb een injectie nodig.' },
+        { emoji:'🩹', label:'Pleister', say:'Ik heb een pleister nodig.' },
+        { emoji:'🩺', label:'Stethoscoop', say:'De dokter moet luisteren.' },
+        { emoji:'🌡️', label:'Thermometer', say:'Meet mijn temperatuur.' },
+        { emoji:'🩸', label:'Bloedonderzoek', say:'Ik heb bloedonderzoek nodig.' },
+      ]},
+      { id:'behandelingen', emoji:'🏥', label:'Behandelingen', children:[
+        { emoji:'🏥', label:'Dokter', say:'Ik ga naar de dokter.' },
+        { emoji:'🦷', label:'Tandarts', say:'Ik ga naar de tandarts.' },
+        { emoji:'👁️', label:'Oogarts', say:'Ik ga naar de oogarts.' },
+        { emoji:'🫀', label:'Hartonderzoek', say:'Ik heb hartonderzoek nodig.' },
+        { emoji:'🫁', label:'Longonderzoek', say:'Ik heb longonderzoek nodig.' },
+        { emoji:'🩺', label:'Onderzoek', say:'Ik heb medisch onderzoek nodig.' },
+      ]},
+    ]
+  },
+  {
+    id:'gevoel', emoji:'😊', label:'Gevoelens', theme:'purple', children:[
+      { id:'positief', emoji:'😊', label:'Positieve gevoelens', children:[
+        { emoji:'😊', label:'Gelukkig', say:'Ik voel me gelukkig.' },
+        { emoji:'😄', label:'Blij', say:'Ik ben blij.' },
+        { emoji:'🥰', label:'Verliefd', say:'Ik ben verliefd.' },
+        { emoji:'😍', label:'Verrukt', say:'Ik ben verrukt.' },
+        { emoji:'🤗', label:'Dankbaar', say:'Ik ben dankbaar.' },
+        { emoji:'😎', label:'Tevreden', say:'Ik ben tevreden.' },
+        { emoji:'🥳', label:'Vrolijk', say:'Ik ben vrolijk.' },
+        { emoji:'😇', label:'Vredig', say:'Ik voel me vredig.' },
+      ]},
+      { id:'negatief', emoji:'😢', label:'Negatieve gevoelens', children:[
+        { emoji:'😢', label:'Verdrietig', say:'Ik ben verdrietig.' },
+        { emoji:'😠', label:'Boos', say:'Ik ben boos.' },
+        { emoji:'😨', label:'Bang', say:'Ik ben bang.' },
+        { emoji:'😔', label:'Teleurgesteld', say:'Ik ben teleurgesteld.' },
+        { emoji:'😰', label:'Zenuwachtig', say:'Ik ben zenuwachtig.' },
+        { emoji:'😞', label:'Somber', say:'Ik voel me somber.' },
+        { emoji:'😩', label:'Frustratie', say:'Ik ben gefrustreerd.' },
+        { emoji:'😫', label:'Uitputting', say:'Ik ben uitgeput.' },
+      ]},
+      { id:'neutraal', emoji:'😐', label:'Neutrale gevoelens', children:[
+        { emoji:'😐', label:'Neutraal', say:'Ik voel me neutraal.' },
+        { emoji:'😴', label:'Slaperig', say:'Ik ben slaperig.' },
+        { emoji:'🤔', label:'Peinzend', say:'Ik ben aan het denken.' },
+        { emoji:'😕', label:'Verward', say:'Ik ben verward.' },
+        { emoji:'🤨', label:'Twijfelend', say:'Ik twijfel.' },
+        { emoji:'😑', label:'Serieus', say:'Ik ben serieus.' },
+        { emoji:'🙄', label:'Ongelovig', say:'Ik geloof het niet.' },
+        { emoji:'🤐', label:'Stil', say:'Ik ben stil.' },
+      ]},
+      { id:'fysiek', emoji:'🤒', label:'Fysieke gevoelens', children:[
+        { emoji:'🤒', label:'Ziek', say:'Ik voel me ziek.' },
+        { emoji:'😴', label:'Moe', say:'Ik ben moe.' },
+        { emoji:'🥵', label:'Warm', say:'Ik heb het warm.' },
+        { emoji:'🥶', label:'Koud', say:'Ik heb het koud.' },
+        { emoji:'😋', label:'Honger', say:'Ik heb honger.' },
+        { emoji:'🥤', label:'Dorst', say:'Ik heb dorst.' },
+        { emoji:'💪', label:'Sterk', say:'Ik voel me sterk.' },
+        { emoji:'😪', label:'Slaperig', say:'Ik ben slaperig.' },
+      ]},
+    ]
+  },
+];
+window.treeLoaded = true;
+// ═══════════════════════════════════════════
+// END INLINE TREE DATA
+// ══════════════════════════════════════════
+
+const tree = window.tree || [];
 const tree = window.tree || [];
 // ═══════════════════════════════════════════
 // DATA TREE (extern geladen via data-tree.js)
@@ -721,6 +1011,8 @@ function speakText() {
 
 if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = () => {};
 
+// Initialize the app
+init();
 </script>
 </body>
 </html>
