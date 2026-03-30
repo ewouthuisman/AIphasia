@@ -6,7 +6,6 @@ dist/
 wheels/
 *.egg-info
 SUPABASE_KEY.env
-.env
 
 # Virtual environments
 .venv
