@@ -365,63 +365,29 @@ function closeSupabaseSetup() {
   document.getElementById('supabaseModal').style.display = 'none';
 }
 
-const DEFAULT_VERCEL_LOG_ENDPOINT = 'https://a-iphasia-zs9i.vercel.app/api/log';
+const DEFAULT_SUPABASE_URL = 'https://absdasswruhhtaguenfz.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFic2Rhc3N3cnVoaHRhZ3VlbmZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkzODgsImV4cCI6MjA5MDQzNTM4OH0.Tgk9KJ6KMSe5fRCV3YwBVCs7pOekNEDc1MVebFFAEP8';
+const DEFAULT_SUPABASE_TABLE = 'tap_logs';
 
-async function uploadToServerless(logs) {
-  const url = DEFAULT_VERCEL_LOG_ENDPOINT;
-  if (!url || url.includes('<your-vercel-app>')) {
-    throw new Error('Vercel endpoint is niet gezet. Vervang DEFAULT_VERCEL_LOG_ENDPOINT met je URL.');
-  }
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({logs})
-  });
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Serverless error: ${response.status} - ${errorText}`);
-  }
-  return response.json();
-}
-
-async function uploadToSupabase(logs) {
-  const config = getSupabaseConfig();
-  if (!config || !config.url || !config.key) {
-    throw new Error('Supabase niet geconfigureerd. Klik op ⚙️ Setup.');
-  }
-  
-  if (!logs || logs.length === 0) {
-    throw new Error('Geen logs om te uploaden.');
-  }
-  
-  const url = `${config.url}/rest/v1/${config.table}`;
-  
+function getSupabaseConfig() {
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': config.key,
-        'Authorization': `Bearer ${config.key}`
-      },
-      body: JSON.stringify(logs)
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Supabase error: ${response.status} - ${errorText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Supabase upload error:', error);
-    throw error;
+    const raw = localStorage.getItem(SUPABASE_CONFIG_KEY);
+    if (raw) return JSON.parse(raw);
+    // Return default config
+    return {
+      url: DEFAULT_SUPABASE_URL,
+      key: DEFAULT_SUPABASE_KEY,
+      table: DEFAULT_SUPABASE_TABLE
+    };
+  } catch (e) {
+    console.error('Fout bij lezen Supabase config', e);
+    return {
+      url: DEFAULT_SUPABASE_URL,
+      key: DEFAULT_SUPABASE_KEY,
+      table: DEFAULT_SUPABASE_TABLE
+    };
   }
 }
-
-function getDeviceId() {
   let id = localStorage.getItem(DEVICE_ID_KEY);
   if (!id) {
     id = `${Date.now()}-${Math.random().toString(36).substr(2, 10)}`;
@@ -500,27 +466,7 @@ async function exportLogs() {
       return;
     }
     
-    // Try to upload to Vercel-serverless first
-    try {
-      await uploadToServerless(logs);
-      alert(`✅ ${logs.length} logs succesvol naar Vercel-serverless geüpload!`);
-      clearTapLogs();
-      return;
-    } catch (serverError) {
-      console.warn('Serverless upload failed:', serverError);
-      const continueFallback = confirm(`Serverless upload mislukt: ${serverError.message}\n\nProbeer Supabase als fallback?`);
-      if (!continueFallback) throw serverError;
-    }
-
-    // Fallback: try Supabase
-    try {
-      await uploadToSupabase(logs);
-      alert(`✅ ${logs.length} logs succesvol naar Supabase geüpload!`);
-      clearTapLogs();
-      return;
-    } catch (supabaseError) {
-      console.warn('Supabase upload failed:', supabaseError);
-      const continueOffline = confirm(`Supabase upload mislukt: ${supabaseError.message}\n\nWil je in plaats daarvan lokaal downloaden?`);
+    // Upload to Supabase
       if (!continueOffline) return;
     }
 
