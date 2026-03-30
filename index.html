@@ -503,6 +503,10 @@ let viewStartTime = Date.now();
 // INIT
 // ═══════════════════════════════════════════
 function init() {
+  if (!tree || tree.length === 0) {
+    setTimeout(init, 100);
+    return;
+  }
   renderFavs();
   renderBreadcrumb();
   renderGrid(tree, null);
@@ -688,7 +692,16 @@ function speakText() {
 
 if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = () => {};
 
-init();
+// Wait for data-tree.js to load
+function checkTreeLoaded() {
+  if (window.tree && window.tree.length > 0) {
+    init();
+  } else {
+    setTimeout(checkTreeLoaded, 50);
+  }
+}
+
+checkTreeLoaded();
 </script>
 </body>
 </html>
