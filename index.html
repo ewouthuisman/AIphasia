@@ -251,35 +251,7 @@ header {
 <header>
   <div class="logo">Spraak<span>helper</span></div>
   <div class="breadcrumb" id="breadcrumb"></div>
-  <button class="clear-btn" id="exportLogsBtn" style="font-size:0.8rem; padding:8px 10px; margin-left:10px;" onclick="exportLogs()">📁 Exporteer logs</button>
-  <button class="clear-btn" id="setupSupabaseBtn" style="font-size:0.8rem; padding:8px 10px; margin-left:5px;" onclick="showSupabaseSetup()">⚙️ Setup</button>
 </header>
-
-<!-- Supabase Setup Modal -->
-<div id="supabaseModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center; flex-direction:column;" onclick="if(event.target.id === 'supabaseModal') closeSupabaseSetup()">
-  <div style="background:white; padding:30px; border-radius:20px; max-width:400px; width:90%;">
-    <h2 style="margin-bottom:20px; color:#1a1a2e; font-family:'Lora',serif;">Supabase Setup</h2>
-    <div style="margin-bottom:15px;">
-      <label style="display:block; font-weight:700; margin-bottom:5px; color:#6b705c;">Project URL</label>
-      <input id="supabaseUrl" type="text" placeholder="https://your-project.supabase.co" style="width:100%; padding:10px; border:2px solid #e0d9cc; border-radius:12px; font-family:monospace; font-size:0.9rem;"/>
-    </div>
-    <div style="margin-bottom:15px;">
-      <label style="display:block; font-weight:700; margin-bottom:5px; color:#6b705c;">Anon Key</label>
-      <input id="supabaseKey" type="password" placeholder="Your anon public key" style="width:100%; padding:10px; border:2px solid #e0d9cc; border-radius:12px; font-family:monospace; font-size:0.9rem;"/>
-    </div>
-    <div style="margin-bottom:20px;">
-      <label style="display:block; font-weight:700; margin-bottom:5px; color:#6b705c;">Table Name (default: tap_logs)</label>
-      <input id="supabaseTable" type="text" placeholder="tap_logs" value="tap_logs" style="width:100%; padding:10px; border:2px solid #e0d9cc; border-radius:12px; font-family:monospace; font-size:0.9rem;"/>
-    </div>
-    <p style="font-size:0.75rem; color:#6b705c; margin-bottom:20px;">
-      💡 Je Anon Key is veilig opgeslagen in Browser localStorage. Dit is alleen voor persoonlijk gebruik.
-    </p>
-    <div style="display:flex; gap:10px; justify-content:flex-end;">
-      <button class="clear-btn" onclick="closeSupabaseSetup()" style="background:#dbeafe; color:#457b9d; border-color:#457b9d;">Cancel</button>
-      <button class="clear-btn" onclick="saveSupabaseConfig()" style="background:#d8f3dc; color:#2d6a4f; border-color:#2d6a4f;">Save</button>
-    </div>
-  </div>
-</div>
 
 <div class="speech-area" id="speechArea">
   <div class="speech-text placeholder" id="speechText">Tik een onderwerp...</div>
@@ -299,9 +271,9 @@ header {
 
 <script>
 // ═══════════════════════════════════════════
-// INLINE TREE DATA (from Data/data-tree.js)
+// DATA TREE
 // ═══════════════════════════════════════════
-window.tree = [
+const tree = [
   {
     id:'eten', emoji:'🍽️', label:'Eten & drinken', theme:'green', children:[
       { id:'ontbijt', emoji:'🌅', label:'Ontbijt', children:[
@@ -351,464 +323,231 @@ window.tree = [
           { emoji:'🌽', label:'Mais', say:'Ik wil graag mais erbij.' },
           { emoji:'🍅', label:'Tomaat', say:'Ik wil graag tomaat erbij.' },
         ]},
-        { id:'bijgerechten', emoji:'🍟', label:'Bijgerechten', children:[
-          { emoji:'🍟', label:'Frietjes', say:'Ik wil graag frietjes erbij.' },
-          { emoji:'🍚', label:'Rijst', say:'Ik wil graag rijst erbij.' },
-          { emoji:'🍝', label:'Pasta', say:'Ik wil graag pasta erbij.' },
-          { emoji:'🥔', label:'Aardappelen', say:'Ik wil graag aardappelen erbij.' },
-          { emoji:'🍞', label:'Brood', say:'Ik wil graag brood erbij.' },
+        { id:'koolhydraten', emoji:'🥔', label:'Aardappel / koolhydraten', children:[
+          { emoji:'🥔', label:'Gekookte aardappel', say:'Ik wil graag gekookte aardappelen.' },
+          { emoji:'🍟', label:'Friet', say:'Ik wil graag friet vanavond.' },
+          { emoji:'🫓', label:'Puree', say:'Ik wil graag aardappelpuree.' },
+          { emoji:'🍚', label:'Rijst', say:'Ik wil graag rijst vanavond.' },
+          { emoji:'🍝', label:'Pasta', say:'Ik wil graag pasta vanavond.' },
+          { emoji:'🫔', label:'Couscous', say:'Ik wil graag couscous vanavond.' },
+          { emoji:'🥖', label:'Brood erbij', say:'Ik wil graag wat brood erbij.' },
         ]},
+        { emoji:'🍜', label:'Soep als avondeten', say:'Ik wil graag soep als avondeten.' },
+        { emoji:'🥗', label:'Salade als avondeten', say:'Ik wil graag een salade vanavond.' },
+        { emoji:'🍕', label:'Pizza', say:'Ik wil graag pizza vanavond.' },
+        { emoji:'😋', label:'Dat was lekker!', say:'Dat was heel lekker, dankjewel.' },
+        { emoji:'😐', label:'Niet zo lekker', say:'Het was niet zo lekker eerlijk gezegd.' },
+      ]},
+      { id:'tussendoortje', emoji:'🍎', label:'Tussendoortje', children:[
+        { emoji:'🍎', label:'Fruit', say:'Ik wil graag wat fruit.' },
+        { emoji:'🍪', label:'Koekje', say:'Ik wil graag een koekje.' },
+        { emoji:'🍫', label:'Chocolade', say:'Ik wil graag een stukje chocolade.' },
+        { emoji:'🥜', label:'Noten', say:'Ik wil graag wat noten.' },
+        { emoji:'🍰', label:'Stukje taart', say:'Ik wil graag een stukje taart.' },
+        { emoji:'🧁', label:'Iets zoets', say:'Ik wil graag iets zoets.' },
+        { emoji:'🥨', label:'Cracker / rijstwafel', say:'Ik wil graag een cracker.' },
       ]},
       { id:'drinken', emoji:'🥤', label:'Drinken', children:[
-        { emoji:'🥛', label:'Melk', say:'Ik wil graag melk.' },
-        { emoji:'☕', label:'Koffie', say:'Ik wil graag koffie.' },
-        { emoji:'🍵', label:'Thee', say:'Ik wil graag thee.' },
-        { emoji:'🧃', label:'Vruchtensap', say:'Ik wil graag vruchtensap.' },
-        { emoji:'🥤', label:'Water', say:'Ik wil graag water.' },
-        { emoji:'🧊', label:'IJsthee', say:'Ik wil graag ijsthee.' },
-        { emoji:'🍹', label:'Frisdrank', say:'Ik wil graag frisdrank.' },
-        { emoji:'🍷', label:'Wijn', say:'Ik wil graag wijn.' },
-        { emoji:'🍺', label:'Bier', say:'Ik wil graag bier.' },
-      ]},
-      { id:'snacks', emoji:'🍿', label:'Snacks', children:[
-        { emoji:'🍿', label:'Popcorn', say:'Ik wil graag popcorn.' },
-        { emoji:'🍪', label:'Koekje', say:'Ik wil graag een koekje.' },
-        { emoji:'🍫', label:'Chocolade', say:'Ik wil graag chocolade.' },
-        { emoji:'🍬', label:'Snoep', say:'Ik wil graag snoep.' },
-        { emoji:'🥨', label:'Pretzel', say:'Ik wil graag een pretzel.' },
-        { emoji:'🥜', label:'Noten', say:'Ik wil graag noten.' },
-        { emoji:'🍩', label:'Donut', say:'Ik wil graag een donut.' },
-        { emoji:'🧁', label:'Cupcake', say:'Ik wil graag een cupcake.' },
+        { emoji:'☕', label:'Koffie', say:'Ik wil graag een kop koffie.' },
+        { emoji:'🍵', label:'Thee', say:'Ik wil graag een kopje thee.' },
+        { emoji:'💧', label:'Water', say:'Ik wil graag een glas water.' },
+        { emoji:'🥛', label:'Melk', say:'Ik wil graag een glas melk.' },
+        { emoji:'🧃', label:'Sap / frisdrank', say:'Ik wil graag een glas sap of frisdrank.' },
+        { emoji:'🍺', label:'Biertje', say:'Ik wil graag een biertje.' },
+        { emoji:'🍺', label:'Weizen', say:'Ik wil graag een weizen.' },
+        { emoji:'🔁', label:'Nog een', say:'Mag ik nog een drankje?' },
       ]},
     ]
   },
+
   {
-    id:'huis', emoji:'🏠', label:'Huis & wonen', theme:'blue', children:[
-      { id:'kamers', emoji:'🚪', label:'Kamers', children:[
-        { emoji:'🛏️', label:'Slaapkamer', say:'Ik wil graag naar de slaapkamer.' },
-        { emoji:'🛋️', label:'Woonkamer', say:'Ik wil graag naar de woonkamer.' },
-        { emoji:'🍳', label:'Keuken', say:'Ik wil graag naar de keuken.' },
-        { emoji:'🚿', label:'Badkamer', say:'Ik wil graag naar de badkamer.' },
-        { emoji:'🚪', label:'Hal', say:'Ik wil graag naar de hal.' },
-        { emoji:'📺', label:'TV-kamer', say:'Ik wil graag naar de TV-kamer.' },
+    id:'huis', emoji:'🏠', label:'Iets in huis', theme:'blue', children:[
+      { id:'huishoudelijk', emoji:'🧹', label:'Huishoudelijk', children:[
+        { emoji:'🧹', label:'Stofzuigen', say:'Kan iemand stofzuigen?' },
+        { emoji:'🫧', label:'Schoonmaken', say:'Zou je het huis kunnen schoonmaken?' },
+        { emoji:'🧹', label:'Opruimen', say:'Zou je het huis kunnen opruimen?' },        
+        { emoji:'👕', label:'Was doen', say:'De was moet gedaan worden.' },
+        { emoji:'👔', label:'Kleding opvouwen', say:'Kan iemand de kleding opvouwen?' },
+        { emoji:'🍽️', label:'Afwassen', say:'De afwas moet worden gedaan.' },
+        { emoji:'🗑️', label:'Vuilnis buiten', say:'De vuilniszak moet buiten worden gezet.' },
+        { emoji:'🛏️', label:'Bed opmaken', say:'Kan iemand mijn bed opmaken?' },
+        { emoji:'🪟', label:'Ramen lappen', say:'De ramen moeten worden gelapt.' },
       ]},
-      { id:'meubels', emoji:'🪑', label:'Meubels', children:[
-        { emoji:'🛋️', label:'Bank', say:'Ik wil graag op de bank zitten.' },
-        { emoji:'🛏️', label:'Bed', say:'Ik wil graag in bed liggen.' },
-        { emoji:'🪑', label:'Stoel', say:'Ik wil graag in een stoel zitten.' },
-        { emoji:'🪑', label:'Eetkamerstoel', say:'Ik wil graag aan tafel zitten.' },
-        { emoji:'🛏️', label:'Boxspring', say:'Ik wil graag op de boxspring liggen.' },
-        { emoji:'🪑', label:'Kruk', say:'Ik wil graag op een kruk zitten.' },
+      { id:'Deuren, ramen, sleutels', emoji:'🔒', label:'Beveiliging & deuren', children:[
+        { emoji:'🚪', label:'Deur op slot?', say:'Is de voordeur op slot?' },
+        { emoji:'🔑', label:'Sleutels', say:'Waar zijn de sleutels?' },
+        { emoji:'🔒', label:'Doe op slot', say:'Kun je de deur op slot doen?' },
+        { emoji:'🔓', label:'Doe open', say:'Kun je de deur opendoen?' },
+        { emoji:'🪟', label:'Raam open', say:'Mag het raam even open?' },
+        { emoji:'🪟', label:'Raam dicht', say:'Kun je het raam dichtdoen?' },
+        { emoji:'💡', label:'Licht aan', say:'Kun je het licht aandoen?' },
+        { emoji:'🌑', label:'Licht uit', say:'Kun je het licht uitdoen?' },
       ]},
-      { id:'elektronica', emoji:'📺', label:'Elektronica', children:[
+      { id:'ruimte', emoji:'🗺️', label:'Welke ruimte?', children:[
+        { emoji:'🍳', label:'Keuken', say:'Ik bedoel de keuken.' },
+        { emoji:'🛋️', label:'Woonkamer', say:'Ik bedoel de woonkamer.' },
+        { emoji:'🛏️', label:'Slaapkamer', say:'Ik bedoel mijn slaapkamer.' },
+        { emoji:'🚿', label:'Badkamer', say:'Ik bedoel mijn badkamer.' },
+        { emoji:'🚽', label:'Toilet', say:'Ik bedoel het toilet.' },
+        { emoji:'🚗', label:'Garage', say:'Ik bedoel de garage.' },
+        { emoji:'🌳', label:'Buiten / tuin', say:'Ik bedoel buiten in de tuin.' },
+        { emoji:'🏠', label:'Hal / gang', say:'Ik bedoel de hal of gang.' },
+        { emoji:'⬆️', label:'Boven', say:'Ik bedoel boven.' },
+        { emoji:'⬇️', label:'Beneden', say:'Ik bedoel beneden.' },
+      ]},
+      { id:'comfortthuis', emoji:'🌡️', label:'Comfort', children:[
+        { emoji:'🥶', label:'Te koud', say:'Het is hier te koud.' },
+        { emoji:'🥵', label:'Te warm', say:'Het is hier te warm.' },
         { emoji:'📺', label:'Televisie', say:'Ik wil graag televisie kijken.' },
-        { emoji:'📻', label:'Radio', say:'Ik wil graag naar de radio luisteren.' },
-        { emoji:'💻', label:'Computer', say:'Ik wil graag op de computer werken.' },
-        { emoji:'📱', label:'Telefoon', say:'Ik wil graag de telefoon gebruiken.' },
-        { emoji:'🎮', label:'Speelcomputer', say:'Ik wil graag gamen.' },
-        { emoji:'🎵', label:'Muziekspeler', say:'Ik wil graag naar muziek luisteren.' },
-      ]},
-      { id:'verlichting', emoji:'💡', label:'Verlichting', children:[
-        { emoji:'💡', label:'Lamp aan', say:'Doe alsjeblieft het licht aan.' },
-        { emoji:'🌙', label:'Lamp uit', say:'Doe alsjeblieft het licht uit.' },
-        { emoji:'💡', label:'Staande lamp', say:'Ik wil graag de staande lamp aanzetten.' },
-        { emoji:'💡', label:'Bureaulamp', say:'Ik wil graag de bureaulamp aanzetten.' },
-        { emoji:'💡', label:'Sfeerlamp', say:'Ik wil graag de sfeerlamp aanzetten.' },
-        { emoji:'💡', label:'Nachtlampje', say:'Ik wil graag het nachtlampje aanzetten.' },
-      ]},
-      { id:'schoonmaken', emoji:'🧽', label:'Schoonmaken', children:[
-        { emoji:'🧽', label:'Schoonmaken', say:'Ik wil graag schoonmaken.' },
-        { emoji:'🧹', label:'Vegen', say:'Ik wil graag vegen.' },
-        { emoji:'🪣', label:'Dweilen', say:'Ik wil graag dweilen.' },
-        { emoji:'🧴', label:'Schoonmaakmiddel', say:'Ik heb schoonmaakmiddel nodig.' },
-        { emoji:'🗑️', label:'Vuilnisbak legen', say:'Ik wil graag de vuilnisbak legen.' },
-        { emoji:'🧺', label:'Wassen', say:'Ik wil graag de was doen.' },
+        { emoji:'📻', label:'Radio / muziek', say:'Ik wil graag muziek of de radio aan.' },
+        { emoji:'🔇', label:'Stiller graag', say:'Kun je het wat stiller zetten?' },
+        { emoji:'🔊', label:'Harder graag', say:'Kun je het harder zetten?' },
       ]},
     ]
   },
+
   {
-    id:'huisdieren', emoji:'🐕', label:'Huisdieren', theme:'purple', children:[
-      { id:'hond', emoji:'🐕', label:'Hond', children:[
-        { emoji:'🐕', label:'Hond uitlaten', say:'Ik wil graag de hond uitlaten.' },
-        { emoji:'🍖', label:'Hond voeren', say:'Ik wil graag de hond voeren.' },
-        { emoji:'🦴', label:'Hond spelen', say:'Ik wil graag met de hond spelen.' },
-        { emoji:'🛁', label:'Hond wassen', say:'Ik wil graag de hond wassen.' },
-        { emoji:'🐕', label:'Hond aaien', say:'Ik wil graag de hond aaien.' },
-        { emoji:'🏥', label:'Hond naar dierenarts', say:'Ik wil graag met de hond naar de dierenarts.' },
+    id:'huisdieren', emoji:'🐾', label:'Huisdieren', theme:'amber', children:[
+      { id:'Coco', emoji:'🐈', label:'Coco', children:[
+        { emoji:'📍', label:'Waar is...?', say:'Waar is Coco?' },
+        { emoji:'🍖', label:'Eten geven', say:'Coco moet eten.' },
+        { emoji:'💧', label:'Water geven', say:'Coco heeft water nodig.' },
+        { emoji:'🚶', label:'Uitlaten', say:'Coco wil graag naar buiten gaan.' },
+        { emoji:'🤒', label:'Voelt zich ziek', say:'Coco voelt zich niet goed.' },
+        { emoji:'🛁', label:'Wassen', say:'Coco moet gewassen worden.' },
       ]},
-      { id:'kat', emoji:'🐱', label:'Kat', children:[
-        { emoji:'🐱', label:'Kat aaien', say:'Ik wil graag de kat aaien.' },
-        { emoji:'🍖', label:'Kat voeren', say:'Ik wil graag de kat voeren.' },
-        { emoji:'🦴', label:'Kat spelen', say:'Ik wil graag met de kat spelen.' },
-        { emoji:'🛁', label:'Kat wassen', say:'Ik wil graag de kat wassen.' },
-        { emoji:'🐱', label:'Kat knuffelen', say:'Ik wil graag de kat knuffelen.' },
-        { emoji:'🏥', label:'Kat naar dierenarts', say:'Ik wil graag met de kat naar de dierenarts.' },
+      { id:'Pip', emoji:'🐕', label:'Pip', children:[
+        { emoji:'📍', label:'Waar is...?', say:'Waar is Pip?' },
+        { emoji:'🍖', label:'Eten geven', say:'Pip moet eten.' },
+        { emoji:'💧', label:'Water geven', say:'Pip heeft water nodig.' },
+        { emoji:'🚶', label:'Uitlaten', say:'Pip moet uitgelaten worden.' },
+        { emoji:'🤒', label:'Voelt zich ziek', say:'Pip voelt zich niet goed.' },
+        { emoji:'🛁', label:'Wassen', say:'Pip moet gewassen worden.' },
+        { emoji:'', label:'Bench', say:'Pip moet in de bench.' },
+
       ]},
-      { id:'vogel', emoji:'🐦', label:'Vogel', children:[
-        { emoji:'🐦', label:'Vogel voeren', say:'Ik wil graag de vogel voeren.' },
-        { emoji:'🦴', label:'Vogel spelen', say:'Ik wil graag met de vogel spelen.' },
-        { emoji:'🛁', label:'Vogelkooi schoonmaken', say:'Ik wil graag de vogelkooi schoonmaken.' },
-        { emoji:'🐦', label:'Vogel aaien', say:'Ik wil graag de vogel aaien.' },
-        { emoji:'🏥', label:'Vogel naar dierenarts', say:'Ik wil graag met de vogel naar de dierenarts.' },
+      { id:'Allebei', emoji:'🐾', label:'Allebei?', children:[
+        { emoji:'🐕', label:'Coco', say:'Ik bedoel Coco.' },
+        { emoji:'🐕', label:'Pip', say:'Ik bedoel Pip.' },
+        { emoji:'🐾', label:'Allebei', say:'Ik bedoel allebei de honden.' },
+      ]}
+    ]
+  },
+
+  {
+    id:'familie', emoji:'👨‍👩‍👧', label:'Familie & bezoek', theme:'purple', children:[
+      { id:'wiefamilie', emoji:'👤', label:'Wie?', children:[
+        { emoji:'👩', label:'Martha', say:'Ik bedoel Martha.' },
+        { emoji:'👦', label:'Thijmen', say:'Ik bedoel Thijmen.' },
+        { emoji:'👧', label:'Ewout', say:'Ik bedoel Ewout.' },
+        { emoji:'👧', label:'Dienke', say:'Ik bedoel Dienke.' },
+        { emoji:'👦', label:'Remco', say:'Ik bedoel Remco.' },
+        { emoji:'👦', label:'Bernd', say:'Ik bedoel Bernd.' },
+        { emoji:'👧', label:'Imie', say:'Ik bedoel Imie.' },
       ]},
-      { id:'vis', emoji:'🐠', label:'Vis', children:[
-        { emoji:'🍖', label:'Vis voeren', say:'Ik wil graag de vis voeren.' },
-        { emoji:'🛁', label:'Vissenkom schoonmaken', say:'Ik wil graag de vissenkom schoonmaken.' },
-        { emoji:'🏥', label:'Vis naar dierenarts', say:'Ik wil graag met de vis naar de dierenarts.' },
-      ]},
-      { id:'konijn', emoji:'🐰', label:'Konijn', children:[
-        { emoji:'🐰', label:'Konijn aaien', say:'Ik wil graag het konijn aaien.' },
-        { emoji:'🍖', label:'Konijn voeren', say:'Ik wil graag het konijn voeren.' },
-        { emoji:'🦴', label:'Konijn spelen', say:'Ik wil graag met het konijn spelen.' },
-        { emoji:'🛁', label:'Konijn wassen', say:'Ik wil graag het konijn wassen.' },
-        { emoji:'🏥', label:'Konijn naar dierenarts', say:'Ik wil graag met het konijn naar de dierenarts.' },
+      { id:'watfamilie', emoji:'❓', label:'Wat?', children:[
+        { emoji:'📍', label:'Waar is...?', say:'Waar is die persoon?' },
+        { emoji:'📞', label:'Bel hen', say:'Kun je hen voor mij bellen?' },
+        { emoji:'💬', label:'Stuur een berichtje', say:'Kun je hen een berichtje sturen?' },
+        { emoji:'🏠', label:'Komen ze langs?', say:'Komen ze vandaag langs?' },
+        { emoji:'🤗', label:'Ik wil bezoek', say:'Ik zou graag bezoek willen.' },
+        { emoji:'😴', label:'Ik wil rust', say:'Ik wil nu even rust, geen bezoek.' },
+        { emoji:'❤️', label:'Ik hou van jullie', say:'Ik hou van jullie allemaal.' },
       ]},
     ]
   },
+
   {
-    id:'familie', emoji:'👨‍👩‍👧‍👦', label:'Familie & vrienden', theme:'amber', children:[
-      { id:'familieleden', emoji:'👨‍👩‍👧‍👦', label:'Familieleden', children:[
-        { emoji:'👨', label:'Papa', say:'Ik wil graag met papa praten.' },
-        { emoji:'👩', label:'Mama', say:'Ik wil graag met mama praten.' },
-        { emoji:'👦', label:'Broer', say:'Ik wil graag met mijn broer praten.' },
-        { emoji:'👧', label:'Zus', say:'Ik wil graag met mijn zus praten.' },
-        { emoji:'👴', label:'Opa', say:'Ik wil graag met opa praten.' },
-        { emoji:'👵', label:'Oma', say:'Ik wil graag met oma praten.' },
-        { emoji:'👨‍👩‍👧‍👦', label:'Gezin', say:'Ik wil graag met het gezin praten.' },
+    id:'helpen', emoji:'🤝', label:'Hulp nodig', theme:'warm', children:[
+      { id:'persoonlijk', emoji:'🧍', label:'Persoonlijke verzorging', children:[
+        { emoji:'🚿', label:'Douchen', say:'Ik wil graag douchen.' },
+        { emoji:'🛁', label:'Bad nemen', say:'Ik wil graag een bad nemen.' },
+        { emoji:'🪥', label:'Tanden poetsen', say:'Ik wil mijn tanden poetsen.' },
+        { emoji:'✂️', label:'Haar / scheren', say:'Ik wil graag geholpen worden met mijn haar of scheren.' },
+        { emoji:'👕', label:'Aankleden', say:'Ik wil graag geholpen worden met aankleden.' },
+        { emoji:'🚽', label:'Inco vervangen', say:'Mijn inco moet vervangen worden.' },
+        { emoji:'💊', label:'Medicijnen innemen', say:'Ik moet mijn medicijnen innemen.' },
       ]},
-      { id:'vrienden', emoji:'👫', label:'Vrienden', children:[
-        { emoji:'👫', label:'Vriend(in)', say:'Ik wil graag met mijn vriend(in) praten.' },
-        { emoji:'👬', label:'Vrienden', say:'Ik wil graag met mijn vrienden praten.' },
-        { emoji:'👭', label:'Vriendinnen', say:'Ik wil graag met mijn vriendinnen praten.' },
-        { emoji:'🏫', label:'Schoolvrienden', say:'Ik wil graag met mijn schoolvrienden praten.' },
-        { emoji:'🏢', label:'Collega\'s', say:'Ik wil graag met mijn collega\'s praten.' },
+      { id:'vervoer', emoji:'🚗', label:'Vervoer', children:[
+        { emoji:'🚗', label:'Met de auto', say:'Ik wil met de auto ergens naartoe.' },
+        { emoji:'♿', label:'Rolstoel', say:'Liggen de rolstoel en handybar in de auto?' },
+        { emoji:'🔑', label:'Autosleutels', say:'Waar zijn de autosleutels?' },
+        { emoji:'🅿️', label:'Parkeerkaart', say:'Ligt de parkeerkaart in de auto?' },
+        { emoji:'🏥', label:'Naar het ziekenhuis', say:'Ik moet naar het ziekenhuis.' },
+        { emoji:'👨‍⚕️', label:'Naar de dokter', say:'Ik moet naar de dokter.' },
+        { emoji:'💈', label:'Naar de kapper', say:'Ik wil naar de kapper.' },
+        { emoji:'🛒', label:'Boodschappen doen', say:'Er moeten boodschappen gedaan worden.' },
       ]},
-      { id:'contact', emoji:'📞', label:'Contact', children:[
-        { emoji:'📞', label:'Bellen', say:'Ik wil graag iemand bellen.' },
-        { emoji:'💬', label:'Appen', say:'Ik wil graag iemand appen.' },
-        { emoji:'📧', label:'E-mailen', say:'Ik wil graag iemand e-mailen.' },
-        { emoji:'📱', label:'Videobellen', say:'Ik wil graag videobellen.' },
-        { emoji:'📝', label:'Brief schrijven', say:'Ik wil graag een brief schrijven.' },
+      { id:'thuis_hulp', emoji:'🛋️', label:'Thuis comfort', children:[
+        { emoji:'🛋️', label:'Help me zitten', say:'Kun je me helpen met gaan zitten?' },
+        { emoji:'🛏️', label:'Help me naar bed', say:'Kun je me helpen naar bed te gaan?' },
+        { emoji:'🧸', label:'Kussen / deken', say:'Kun je mijn kussen of deken aanpassen?' },
+        { emoji:'📱', label:'Telefoon pakken', say:'Kun je mijn telefoon voor me pakken?' },
+        { emoji:'👓', label:'Bril pakken', say:'Kun je mijn bril voor me pakken?' },
+      ]},
+      { id:'zorg_instructies', emoji:'📋', label:'Zorg instructies', children:[
+        { emoji:'📋', label:'Lees instructies voor', say:'Kun je de zorginstructies voor me voorlezen?' },
+        { emoji:'♿', label:'Rolstoel klaarzetten', say:'Kun je de rolstoel klaarzetten?' },
+        { emoji:'🛏️', label:'Bed aanpassen', say:'Kun je het bed aanpassen?' },
+        { emoji:'💡', label:'Meer uitleg nodig', say:'Ik heb meer uitleg nodig over de verzorging.' },
       ]},
     ]
   },
+
   {
-    id:'hulp', emoji:'🆘', label:'Hulp & ondersteuning', theme:'warm', children:[
-      { id:'medische_hulp', emoji:'🏥', label:'Medische hulp', children:[
-        { emoji:'🏥', label:'Dokter', say:'Ik heb medische hulp nodig.' },
-        { emoji:'🚑', label:'Ambulance', say:'Bel alsjeblieft een ambulance.' },
-        { emoji:'💊', label:'Medicijnen', say:'Ik heb mijn medicijnen nodig.' },
-        { emoji:'🩹', label:'Pleister', say:'Ik heb een pleister nodig.' },
-        { emoji:'🌡️', label:'Temperatuur meten', say:'Ik wil graag mijn temperatuur meten.' },
-        { emoji:'💉', label:'Injectie', say:'Ik heb een injectie nodig.' },
+    id:'medisch', emoji:'🏥', label:'Medisch', theme:'blue', children:[
+      { id:'pijn', emoji:'😣', label:'Pijn / ongemak', children:[
+        { emoji:'🤕', label:'Hoofdpijn', say:'Ik heb hoofdpijn.' },
+        { emoji:'🫀', label:'Hartkloppingen', say:'Ik voel mijn hart kloppen, dat voelt niet goed.' },
+        { emoji:'😮‍💨', label:'Kortademig', say:'Ik ben kortademig.' },
+        { emoji:'🤢', label:'Misselijk', say:'Ik voel me misselijk.' },
+        { emoji:'🦵', label:'Pijn in been', say:'Ik heb pijn in mijn been.' },
+        { emoji:'💪', label:'Pijn in arm', say:'Ik heb pijn in mijn arm.' },
+        { emoji:'🫁', label:'Pijn op de borst', say:'Ik heb pijn op de borst.' },
+        { emoji:'😣', label:'Buikpijn', say:'Ik heb buikpijn.' },
+        { emoji:'🔙', label:'Rugpijn', say:'Ik heb rugpijn.' },
       ]},
-      { id:'praktische_hulp', emoji:'🛠️', label:'Praktische hulp', children:[
-        { emoji:'🛠️', label:'Reparatie', say:'Ik heb hulp nodig bij een reparatie.' },
-        { emoji:'🔧', label:'Gereedschap', say:'Ik heb gereedschap nodig.' },
-        { emoji:'🧹', label:'Schoonmaken', say:'Ik heb hulp nodig bij schoonmaken.' },
-        { emoji:'🧺', label:'Wassen', say:'Ik heb hulp nodig bij de was.' },
-        { emoji:'🍳', label:'Koken', say:'Ik heb hulp nodig bij koken.' },
-        { emoji:'🚗', label:'Autorijden', say:'Ik heb hulp nodig bij autorijden.' },
-      ]},
-      { id:'emotionele_hulp', emoji:'🤗', label:'Emotionele hulp', children:[
-        { emoji:'🤗', label:'Knuffel', say:'Ik wil graag een knuffel.' },
-        { emoji:'💬', label:'Praten', say:'Ik wil graag praten.' },
-        { emoji:'😊', label:'Lachen', say:'Ik wil graag lachen.' },
-        { emoji:'😢', label:'Huilen', say:'Ik wil graag huilen.' },
-        { emoji:'😴', label:'Rust', say:'Ik heb rust nodig.' },
-        { emoji:'🎵', label:'Muziek', say:'Ik wil graag naar muziek luisteren.' },
-      ]},
-      { id:'noodgevallen', emoji:'🚨', label:'Noodgevallen', children:[
-        { emoji:'🚨', label:'Politie', say:'Bel alsjeblieft de politie.' },
-        { emoji:'🔥', label:'Brandweer', say:'Bel alsjeblieft de brandweer.' },
-        { emoji:'🚑', label:'Ambulance', say:'Bel alsjeblieft een ambulance.' },
-        { emoji:'🆘', label:'SOS', say:'Dit is een noodgeval!' },
-        { emoji:'📞', label:'Alarmnummer', say:'Bel alsjeblieft het alarmnummer.' },
+      { id:'actie_medisch', emoji:'🩺', label:'Wat moet er gebeuren?', children:[
+        { emoji:'🆘', label:'Bel 112 — noodgeval', say:'Dit is een noodgeval, bel 112 alsjeblieft!' },
+        { emoji:'👨‍⚕️', label:'Bel de dokter', say:'Kun je de dokter bellen?' },
+        { emoji:'💊', label:'Pijnstiller graag', say:'Mag ik een pijnstiller?' },
+        { emoji:'📋', label:'Medicijnlijst tonen', say:'Kun je mijn medicijnlijst pakken?' },
+        { emoji:'🏥', label:'Naar het ziekenhuis', say:'Ik denk dat ik naar het ziekenhuis moet.' },
+        { emoji:'🛏️', label:'Ik wil gaan liggen', say:'Ik wil graag gaan liggen.' },
       ]},
     ]
   },
+
   {
-    id:'medisch', emoji:'⚕️', label:'Medisch', theme:'green', children:[
-      { id:'lichaam', emoji:'🫀', label:'Lichaam', children:[
-        { emoji:'🫀', label:'Hart', say:'Ik heb pijn in mijn hart.' },
-        { emoji:'🧠', label:'Hoofd', say:'Ik heb hoofdpijn.' },
-        { emoji:'🦷', label:'Tanden', say:'Ik heb pijn in mijn tanden.' },
-        { emoji:'👂', label:'Oren', say:'Ik heb pijn in mijn oren.' },
-        { emoji:'👃', label:'Neus', say:'Ik heb pijn in mijn neus.' },
-        { emoji:'👄', label:'Mond', say:'Ik heb pijn in mijn mond.' },
-        { emoji:'🦶', label:'Voeten', say:'Ik heb pijn in mijn voeten.' },
-        { emoji:'🦵', label:'Benen', say:'Ik heb pijn in mijn benen.' },
-        { emoji:'💪', label:'Armen', say:'Ik heb pijn in mijn armen.' },
-        { emoji:'🫁', label:'Longen', say:'Ik heb pijn in mijn longen.' },
-        { emoji:'🫄', label:'Buik', say:'Ik heb pijn in mijn buik.' },
-        { emoji:'👀', label:'Ogen', say:'Ik heb pijn in mijn ogen.' },
-      ]},
-      { id:'ziekten', emoji:'🤒', label:'Ziekten', children:[
-        { emoji:'🤒', label:'Koorts', say:'Ik heb koorts.' },
-        { emoji:'🤧', label:'Verkoudheid', say:'Ik ben verkouden.' },
-        { emoji:'🤢', label:'Misselijk', say:'Ik ben misselijk.' },
-        { emoji:'🤮', label:'Overgeven', say:'Ik moet overgeven.' },
-        { emoji:'😴', label:'Vermoeid', say:'Ik ben erg vermoeid.' },
-        { emoji:'😷', label:'Griep', say:'Ik heb griep.' },
-        { emoji:'🤕', label:'Hoofdwond', say:'Ik heb een hoofdwond.' },
-        { emoji:'🩹', label:'Wond', say:'Ik heb een wond.' },
-      ]},
-      { id:'medicijnen', emoji:'💊', label:'Medicijnen', children:[
-        { emoji:'💊', label:'Pillen', say:'Ik moet mijn pillen innemen.' },
-        { emoji:'💉', label:'Injectie', say:'Ik heb een injectie nodig.' },
-        { emoji:'🩹', label:'Pleister', say:'Ik heb een pleister nodig.' },
-        { emoji:'🩺', label:'Stethoscoop', say:'De dokter moet luisteren.' },
-        { emoji:'🌡️', label:'Thermometer', say:'Meet mijn temperatuur.' },
-        { emoji:'🩸', label:'Bloedonderzoek', say:'Ik heb bloedonderzoek nodig.' },
-      ]},
-      { id:'behandelingen', emoji:'🏥', label:'Behandelingen', children:[
-        { emoji:'🏥', label:'Dokter', say:'Ik ga naar de dokter.' },
-        { emoji:'🦷', label:'Tandarts', say:'Ik ga naar de tandarts.' },
-        { emoji:'👁️', label:'Oogarts', say:'Ik ga naar de oogarts.' },
-        { emoji:'🫀', label:'Hartonderzoek', say:'Ik heb hartonderzoek nodig.' },
-        { emoji:'🫁', label:'Longonderzoek', say:'Ik heb longonderzoek nodig.' },
-        { emoji:'🩺', label:'Onderzoek', say:'Ik heb medisch onderzoek nodig.' },
-      ]},
-    ]
-  },
-  {
-    id:'gevoel', emoji:'😊', label:'Gevoelens', theme:'purple', children:[
-      { id:'positief', emoji:'😊', label:'Positieve gevoelens', children:[
-        { emoji:'😊', label:'Gelukkig', say:'Ik voel me gelukkig.' },
-        { emoji:'😄', label:'Blij', say:'Ik ben blij.' },
-        { emoji:'🥰', label:'Verliefd', say:'Ik ben verliefd.' },
-        { emoji:'😍', label:'Verrukt', say:'Ik ben verrukt.' },
-        { emoji:'🤗', label:'Dankbaar', say:'Ik ben dankbaar.' },
-        { emoji:'😎', label:'Tevreden', say:'Ik ben tevreden.' },
-        { emoji:'🥳', label:'Vrolijk', say:'Ik ben vrolijk.' },
-        { emoji:'😇', label:'Vredig', say:'Ik voel me vredig.' },
-      ]},
-      { id:'negatief', emoji:'😢', label:'Negatieve gevoelens', children:[
-        { emoji:'😢', label:'Verdrietig', say:'Ik ben verdrietig.' },
-        { emoji:'😠', label:'Boos', say:'Ik ben boos.' },
-        { emoji:'😨', label:'Bang', say:'Ik ben bang.' },
-        { emoji:'😔', label:'Teleurgesteld', say:'Ik ben teleurgesteld.' },
-        { emoji:'😰', label:'Zenuwachtig', say:'Ik ben zenuwachtig.' },
-        { emoji:'😞', label:'Somber', say:'Ik voel me somber.' },
-        { emoji:'😩', label:'Frustratie', say:'Ik ben gefrustreerd.' },
-        { emoji:'😫', label:'Uitputting', say:'Ik ben uitgeput.' },
-      ]},
-      { id:'neutraal', emoji:'😐', label:'Neutrale gevoelens', children:[
-        { emoji:'😐', label:'Neutraal', say:'Ik voel me neutraal.' },
-        { emoji:'😴', label:'Slaperig', say:'Ik ben slaperig.' },
-        { emoji:'🤔', label:'Peinzend', say:'Ik ben aan het denken.' },
-        { emoji:'😕', label:'Verward', say:'Ik ben verward.' },
-        { emoji:'🤨', label:'Twijfelend', say:'Ik twijfel.' },
-        { emoji:'😑', label:'Serieus', say:'Ik ben serieus.' },
-        { emoji:'🙄', label:'Ongelovig', say:'Ik geloof het niet.' },
-        { emoji:'🤐', label:'Stil', say:'Ik ben stil.' },
-      ]},
-      { id:'fysiek', emoji:'🤒', label:'Fysieke gevoelens', children:[
-        { emoji:'🤒', label:'Ziek', say:'Ik voel me ziek.' },
-        { emoji:'😴', label:'Moe', say:'Ik ben moe.' },
-        { emoji:'🥵', label:'Warm', say:'Ik heb het warm.' },
-        { emoji:'🥶', label:'Koud', say:'Ik heb het koud.' },
-        { emoji:'😋', label:'Honger', say:'Ik heb honger.' },
-        { emoji:'🥤', label:'Dorst', say:'Ik heb dorst.' },
-        { emoji:'💪', label:'Sterk', say:'Ik voel me sterk.' },
-        { emoji:'😪', label:'Slaperig', say:'Ik ben slaperig.' },
-      ]},
+    id:'gevoel', emoji:'💬', label:'Gevoel & communicatie', theme:'green', children:[
+      { emoji:'😊', label:'Ik voel me goed', say:'Ik voel me goed vandaag.' },
+      { emoji:'😔', label:'Niet zo goed', say:'Ik voel me niet zo goed vandaag.' },
+      { emoji:'😴', label:'Ik ben moe', say:'Ik ben moe.' },
+      { emoji:'😄', label:'Ik ben blij', say:'Ik ben blij.' },
+      { emoji:'😟', label:'Ik ben verdrietig', say:'Ik ben een beetje verdrietig.' },
+      { emoji:'😤', label:'Ik ben gefrustreerd', say:'Ik ben gefrustreerd.' },
+      { emoji:'💪', label:'Ik voel me beter', say:'Ik voel me een stuk beter.' },
+      { emoji:'✅', label:'Ja', say:'Ja.' },
+      { emoji:'❌', label:'Nee', say:'Nee.' },
+      { emoji:'🤔', label:'Ik weet het niet', say:'Ik weet het niet.' },
+      { emoji:'🔁', label:'Herhaal dat', say:'Kun je dat herhalen, alsjeblieft?' },
+      { emoji:'⏳', label:'Wacht even', say:'Wacht even, alsjeblieft.' },
+      { emoji:'👍', label:'Alles goed', say:'Alles is goed, maak je geen zorgen.' },
+      { emoji:'❤️', label:'Ik hou van jullie', say:'Ik hou van jullie.' },
+      { emoji:'🙏', label:'Dankjewel', say:'Dankjewel, dat stel ik erg op prijs.' },
     ]
   },
 ];
-window.treeLoaded = true;
-// ═══════════════════════════════════════════
-// END INLINE TREE DATA
-// ══════════════════════════════════════════
 
-const tree = window.tree || [];
-// ═══════════════════════════════════════════
-// APPLICATION CODE
-// ══════════════════════════════════════════
+
+// Flag to indicate the tree data has been loaded
+window.treeLoaded = true;
+
 
 const FAVORITES = [
-  'Ja.', 'Nee.', 'Dankjewel.', 'Ik ben moe.', 'Ik wil graag muziek luisteren.', 'Wacht even, alsjeblieft.'
+  'Ja.', 'Nee.', 'Dankjewel, dat stel ik erg op prijs.',
+  'Ik ben moe.', 'Ik wil graag een kop koffie.', 'Wacht even, alsjeblieft.'
 ];
-
-const LOG_KEY = 'spraakhelper_tap_log';
-const DEVICE_ID_KEY = 'spraakhelper_device_id';
-const SUPABASE_CONFIG_KEY = 'spraakhelper_supabase_config';
-
-// Default Supabase credentials
-const DEFAULT_SUPABASE_URL = 'https://absdasswruhhtaguenfz.supabase.co';
-const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFic2Rhc3N3cnVoaHRhZ3VlbmZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkzODgsImV4cCI6MjA5MDQzNTM4OH0.Tgk9KJ6KMSe5fRCV3YwBVCs7pOekNEDc1MVebFFAEP8';
-const DEFAULT_SUPABASE_TABLE = 'tap_logs';
-
-function getSupabaseConfig() {
-  try {
-    const raw = localStorage.getItem(SUPABASE_CONFIG_KEY);
-    if (raw) return JSON.parse(raw);
-    // Return default config
-    return {
-      url: DEFAULT_SUPABASE_URL,
-      key: DEFAULT_SUPABASE_KEY,
-      table: DEFAULT_SUPABASE_TABLE
-    };
-  } catch (e) {
-    console.error('Fout bij lezen Supabase config', e);
-    return {
-      url: DEFAULT_SUPABASE_URL,
-      key: DEFAULT_SUPABASE_KEY,
-      table: DEFAULT_SUPABASE_TABLE
-    };
-  }
-}
-
-function saveSupabaseConfig() {
-  const url = document.getElementById('supabaseUrl').value.trim();
-  const key = document.getElementById('supabaseKey').value.trim();
-  const table = document.getElementById('supabaseTable').value.trim() || 'tap_logs';
-  
-  if (!url || !key) {
-    alert('Vul alstublieft URL en Anon Key in.');
-    return;
-  }
-  
-  const config = { url, key, table };
-  localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(config));
-  closeSupabaseSetup();
-  alert('Supabase config opgeslagen!');
-}
-
-function showSupabaseSetup() {
-  const config = getSupabaseConfig();
-  document.getElementById('supabaseUrl').value = config.url;
-  document.getElementById('supabaseKey').value = config.key;
-  document.getElementById('supabaseTable').value = config.table || 'tap_logs';
-  document.getElementById('supabaseModal').style.display = 'flex';
-}
-
-function closeSupabaseSetup() {
-  document.getElementById('supabaseModal').style.display = 'none';
-}
-
-const DEFAULT_SUPABASE_URL = 'https://absdasswruhhtaguenfz.supabase.co';
-const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFic2Rhc3N3cnVoaHRhZ3VlbmZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkzODgsImV4cCI6MjA5MDQzNTM4OH0.Tgk9KJ6KMSe5fRCV3YwBVCs7pOekNEDc1MVebFFAEP8';
-const DEFAULT_SUPABASE_TABLE = 'tap_logs';
-
-function getSupabaseConfig() {
-  try {
-    const raw = localStorage.getItem(SUPABASE_CONFIG_KEY);
-    if (raw) return JSON.parse(raw);
-    // Return default config
-    return {
-      url: DEFAULT_SUPABASE_URL,
-      key: DEFAULT_SUPABASE_KEY,
-      table: DEFAULT_SUPABASE_TABLE
-    };
-  } catch (e) {
-    console.error('Fout bij lezen Supabase config', e);
-    return {
-      url: DEFAULT_SUPABASE_URL,
-      key: DEFAULT_SUPABASE_KEY,
-      table: DEFAULT_SUPABASE_TABLE
-    };
-  }
-}
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = `${Date.now()}-${Math.random().toString(36).substr(2, 10)}`;
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
-
-function getTapLog() {
-  try {
-    const raw = localStorage.getItem(LOG_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    console.error('Fout bij lezen log', e);
-    return [];
-  }
-}
-
-function saveTapLog(entries) {
-  localStorage.setItem(LOG_KEY, JSON.stringify(entries));
-}
-
-function logTap(item, source, extra = {}) {
-  const now = new Date().toISOString();
-  const deviceId = getDeviceId();
-  const navTrail = path.map(p => p.label);
-  const entry = {
-    timestamp: now,
-    deviceId,
-    source,
-    categoryPath: [...navTrail, item.label],
-    itemLabel: item.label,
-    itemId: item.id || null,
-    itemEmoji: item.emoji || null,
-    itemSay: item.say || null,
-    currentTheme: currentTheme,
-    ...extra,
-  };
-  const logs = getTapLog();
-  logs.push(entry);
-  saveTapLog(logs);
-  console.debug('Tap logged', entry);
-}
-
-function clearTapLogs() {
-  localStorage.removeItem(LOG_KEY);
-}
-
-async function saveLogsToFolder() {
-  if (!('showDirectoryPicker' in window)) {
-    throw new Error('Bestandsmap kiezen wordt niet ondersteund in deze browser.');
-  }
-  const dir = await window.showDirectoryPicker();
-  const fileHandle = await dir.getFileHandle('tap_logs.json', { create: true });
-  const writable = await fileHandle.createWritable();
-  await writable.write(JSON.stringify(getTapLog(), null, 2));
-  await writable.close();
-}
-
-function downloadLogsAsFile() {
-  const data = JSON.stringify(getTapLog(), null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'tap_logs.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-async function exportLogs() {
-  try {
-    const logs = getTapLog();
-    if (!logs || logs.length === 0) {
-      alert('Geen logs om te exporteren.');
-      return;
-    }
-    
-    // Upload to Supabase
-      if (!continueOffline) return;
-    }
-
-    // Fallback: try File System Access API
-    try {
-      await saveLogsToFolder();
-      alert(`✅ ${logs.length} logs succesvol lokaal weggeschreven.`);
-      clearTapLogs();
-    } catch (fsError) {
-      console.warn('File System API niet beschikbaar:', fsError);
-      // Final fallback: download as file
-      downloadLogsAsFile();
-      alert(`✅ ${logs.length} logs gedownload als tap_logs.json.\nVerplaats bestand naar Logs folder.`);
-      clearTapLogs();
-    }
-  } catch (error) {
-    console.error('Export error:', error);
-    alert(`❌ Exporteren mislukt: ${error.message}`);
-  }
-}
 
 // ═══════════════════════════════════════════
 // STATE
@@ -819,7 +558,6 @@ let currentTheme = 'green';
 let currentText = '';
 let selectedCard = null;
 let synth = window.speechSynthesis;
-let viewStartTime = Date.now();
 
 // ═══════════════════════════════════════════
 // INIT
@@ -837,11 +575,7 @@ function renderFavs() {
     const el = document.createElement('div');
     el.className = 'fav-chip';
     el.textContent = t;
-    el.onclick = () => {
-      const time_to_tap_ms = Date.now() - viewStartTime;
-      logTap({ label: t, emoji: '⭐', id: 'favorite' }, 'favorite', { actionType: 'favorite', time_to_tap_ms });
-      setSpeech(t);
-    };
+    el.onclick = () => setSpeech(t);
     c.appendChild(el);
   });
 }
@@ -932,8 +666,6 @@ function renderGrid(items, theme) {
     backWrap.innerHTML = '';
   }
 
-  viewStartTime = Date.now();
-
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
 
@@ -951,9 +683,6 @@ function renderGrid(items, theme) {
       ${item.children ? `<div class="card-sub">${item.children.length} opties</div>` : ''}
     `;
     card.onclick = () => {
-      const action = item.say ? 'leaf' : 'folder';
-      const time_to_tap_ms = Date.now() - viewStartTime;
-      logTap(item, 'grid', { actionType: action, path: path.map(p => p.label), time_to_tap_ms });
       if (item.say) {
         if (selectedCard) selectedCard.classList.remove('selected');
         selectedCard = card;
@@ -1010,7 +739,6 @@ function speakText() {
 
 if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = () => {};
 
-// Initialize the app
 init();
 </script>
 </body>
