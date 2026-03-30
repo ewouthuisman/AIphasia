@@ -5,7 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
-SUPABASE_KEY
+.env
 
 # Virtual environments
 .venv
