@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Spraakhelper</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:wght@500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #f5f0e8;
+  --surface: #fffdf8;
+  --card: #ffffff;
+  --accent: #2d6a4f;
+  --accent-light: #52b788;
+  --accent-pale: #d8f3dc;
+  --warm: #e76f51;
+  --warm-pale: #fde8e2;
+  --blue: #457b9d;
+  --blue-pale: #dbeafe;
+  --purple: #6d4c9f;
+  --purple-pale: #ede9fe;
+  --amber: #d97706;
+  --amber-pale: #fef3c7;
+  --text: #1a1a2e;
+  --text-muted: #6b705c;
+  --border: #e0d9cc;
+  --shadow: rgba(45,106,79,0.10);
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* HEADER */
+header {
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+.logo {
+  font-family: 'Lora', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.logo span { color: var(--warm); }
+
+/* BREADCRUMB */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.crumb {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 50px;
+  transition: all 0.15s;
+}
+.crumb:hover { background: var(--accent-pale); color: var(--accent); }
+.crumb.active { color: var(--accent); }
+.crumb-sep { color: var(--border); font-size: 1.1rem; }
+
+/* SPEECH AREA */
+.speech-area {
+  margin: 16px 16px 0;
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  padding: 16px 20px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 20px var(--shadow);
+  transition: all 0.3s ease;
+}
+.speech-area.has-text { border-color: var(--accent-light); background: var(--accent-pale); }
+.speech-text {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+  line-height: 1.4;
+}
+.speech-text.placeholder { color: var(--text-muted); font-weight: 400; font-size: 1.1rem; font-style: italic; }
+.speech-actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+.speak-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 58px;
+  height: 58px;
+  font-size: 1.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  box-shadow: 0 4px 12px rgba(45,106,79,0.3);
+}
+.speak-btn:active { transform: scale(0.92); }
+.speak-btn:disabled { background: #bbb; box-shadow: none; }
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(45,106,79,0.45); }
+  70% { box-shadow: 0 0 0 14px rgba(45,106,79,0); }
+  100% { box-shadow: 0 0 0 0 rgba(45,106,79,0); }
+}
+.speak-btn.speaking { animation: pulse-ring 1s ease-out infinite; background: var(--accent-light); }
+.clear-btn {
+  background: var(--warm-pale);
+  color: var(--warm);
+  border: 2px solid var(--warm);
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.clear-btn:active { transform: scale(0.95); }
+
+/* FAVORITES */
+.fav-bar { padding: 12px 16px 4px; }
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 8px;
+}
+.fav-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.fav-chips::-webkit-scrollbar { display: none; }
+.fav-chip {
+  background: var(--warm-pale);
+  border: 2px solid var(--warm);
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--warm);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.fav-chip:active { background: var(--warm); color: white; transform: scale(0.95); }
+
+/* GRID */
+.grid-wrap { padding: 10px 16px 30px; flex: 1; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.grid.two-col { grid-template-columns: repeat(2, 1fr); }
+
+.card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 2px 8px var(--shadow);
+  min-height: 110px;
+  text-align: center;
+  user-select: none;
+  position: relative;
+}
+.card:active { transform: scale(0.93); }
+.card.selected { border-color: var(--accent); background: var(--accent-pale); }
+
+/* Color themes per top-category */
+.card[data-theme="green"]:active, .card[data-theme="green"].selected { border-color: var(--accent); background: var(--accent-pale); }
+.card[data-theme="blue"]:active, .card[data-theme="blue"].selected { border-color: var(--blue); background: var(--blue-pale); }
+.card[data-theme="purple"]:active, .card[data-theme="purple"].selected { border-color: var(--purple); background: var(--purple-pale); }
+.card[data-theme="amber"]:active, .card[data-theme="amber"].selected { border-color: var(--amber); background: var(--amber-pale); }
+.card[data-theme="warm"]:active, .card[data-theme="warm"].selected { border-color: var(--warm); background: var(--warm-pale); }
+
+.card-emoji { font-size: 2.2rem; line-height: 1; }
+.card-label { font-size: 0.9rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+.card-sub { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+.has-children::after {
+  content: '›';
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  font-weight: 900;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin: 12px 16px 0;
+  width: fit-content;
+  transition: all 0.15s;
+}
+.back-btn:active { transform: scale(0.96); background: var(--bg); }
+
+@media (max-width: 480px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Spraak<span>helper</span></div>
+  <div class="breadcrumb" id="breadcrumb"></div>
+  <button class="clear-btn" id="exportLogsBtn" style="font-size:0.8rem; padding:8px 10px; margin-left:10px;" onclick="exportLogs()">📁 Exporteer logs</button>
+  <button class="clear-btn" id="setupSupabaseBtn" style="font-size:0.8rem; padding:8px 10px; margin-left:5px;" onclick="showSupabaseSetup()">⚙️ Setup</button>
+</header>
+
+<!-- Supabase Setup Modal -->
+<div id="supabaseModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center; flex-direction:column;" onclick="if(event.target.id === 'supabaseModal') closeSupabaseSetup()">
+  <div style="background:white; padding:30px; border-radius:20px; max-width:400px; width:90%;">
+    <h2 style="margin-bottom:20px; color:#1a1a2e; font-family:'Lora',serif;">Supabase Setup</h2>
+    <div style="margin-bottom:15px;">
+      <label style="display:block; font-weight:700; margin-bottom:5px; color:#6b705c;">Project URL</label>
+      <input id="supabaseUrl" type="text" placeholder="https://your-project.supabase.co" style="width:100%; padding:10px; border:2px solid #e0d9cc; border-radius:12px; font-family:monospace; font-size:0.9rem;"/>
+    </div>
+    <div style="margin-bottom:15px;">
+      <label style="display:block; font-weight:700; margin-bottom:5px; color:#6b705c;">Anon Key</label>
+      <input id="supabaseKey" type="password" placeholder="Your anon public key" style="width:100%; padding:10px; border:2px solid #e0d9cc; border-radius:12px; font-family:monospace; font-size:0.9rem;"/>
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="display:block; font-weight:700; margin-bottom:5px; color:#6b705c;">Table Name (default: tap_logs)</label>
+      <input id="supabaseTable" type="text" placeholder="tap_logs" value="tap_logs" style="width:100%; padding:10px; border:2px solid #e0d9cc; border-radius:12px; font-family:monospace; font-size:0.9rem;"/>
+    </div>
+    <p style="font-size:0.75rem; color:#6b705c; margin-bottom:20px;">
+      💡 Je Anon Key is veilig opgeslagen in Browser localStorage. Dit is alleen voor persoonlijk gebruik.
+    </p>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button class="clear-btn" onclick="closeSupabaseSetup()" style="background:#dbeafe; color:#457b9d; border-color:#457b9d;">Cancel</button>
+      <button class="clear-btn" onclick="saveSupabaseConfig()" style="background:#d8f3dc; color:#2d6a4f; border-color:#2d6a4f;">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="speech-area" id="speechArea">
+  <div class="speech-text placeholder" id="speechText">Tik een onderwerp...</div>
+  <div class="speech-actions">
+    <button class="clear-btn" id="clearBtn" onclick="clearSpeech()" style="display:none">✕ Wis</button>
+    <button class="speak-btn" id="speakBtn" onclick="speakText()" disabled>🔊</button>
+  </div>
+</div>
+
+<div class="fav-bar">
+  <div class="section-label">⭐ Snel</div>
+  <div class="fav-chips" id="favChips"></div>
+</div>
+
+<div id="backWrap"></div>
+<div class="grid-wrap"><div class="grid" id="grid"></div></div>
+
+<script src="Data/data-tree.js"></script>
+<script>
+const tree = window.tree || [];
+// ═══════════════════════════════════════════
+// DATA TREE (extern geladen via data-tree.js)
+// ══════════════════════════════════════════
+
+const FAVORITES = [
+  'Ja.', 'Nee.', 'Dankjewel.', 'Ik ben moe.', 'Ik wil graag muziek luisteren.', 'Wacht even, alsjeblieft.'
+];
+
+const LOG_KEY = 'spraakhelper_tap_log';
+const DEVICE_ID_KEY = 'spraakhelper_device_id';
+const SUPABASE_CONFIG_KEY = 'spraakhelper_supabase_config';
+
+// Default Supabase credentials
+const DEFAULT_SUPABASE_URL = 'https://absdasswruhhtaguenfz.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'sb_publishable_lFCNrDCe3nuIHIpShJwjtA_CFLRjUvN';
+const DEFAULT_SUPABASE_TABLE = 'tap_logs';
+
+function getSupabaseConfig() {
+  try {
+    const raw = localStorage.getItem(SUPABASE_CONFIG_KEY);
+    if (raw) return JSON.parse(raw);
+    // Return default config
+    return {
+      url: DEFAULT_SUPABASE_URL,
+      key: DEFAULT_SUPABASE_KEY,
+      table: DEFAULT_SUPABASE_TABLE
+    };
+  } catch (e) {
+    console.error('Fout bij lezen Supabase config', e);
+    return {
+      url: DEFAULT_SUPABASE_URL,
+      key: DEFAULT_SUPABASE_KEY,
+      table: DEFAULT_SUPABASE_TABLE
+    };
+  }
+}
+
+function saveSupabaseConfig() {
+  const url = document.getElementById('supabaseUrl').value.trim();
+  const key = document.getElementById('supabaseKey').value.trim();
+  const table = document.getElementById('supabaseTable').value.trim() || 'tap_logs';
+  
+  if (!url || !key) {
+    alert('Vul alstublieft URL en Anon Key in.');
+    return;
+  }
+  
+  const config = { url, key, table };
+  localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(config));
+  closeSupabaseSetup();
+  alert('Supabase config opgeslagen!');
+}
+
+function showSupabaseSetup() {
+  const config = getSupabaseConfig();
+  document.getElementById('supabaseUrl').value = config.url;
+  document.getElementById('supabaseKey').value = config.key;
+  document.getElementById('supabaseTable').value = config.table || 'tap_logs';
+  document.getElementById('supabaseModal').style.display = 'flex';
+}
+
+function closeSupabaseSetup() {
+  document.getElementById('supabaseModal').style.display = 'none';
+}
+
+async function uploadToSupabase(logs) {
+  const config = getSupabaseConfig();
+  if (!config || !config.url || !config.key) {
+    throw new Error('Supabase niet geconfigureerd. Klik op ⚙️ Setup.');
+  }
+  
+  if (!logs || logs.length === 0) {
+    throw new Error('Geen logs om te uploaden.');
+  }
+  
+  const url = `${config.url}/rest/v1/${config.table}`;
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': config.key,
+        'Authorization': `Bearer ${config.key}`
+      },
+      body: JSON.stringify(logs)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Supabase error: ${response.status} - ${errorText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Supabase upload error:', error);
+    throw error;
+  }
+}
+
+function getDeviceId() {
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if (!id) {
+    id = `${Date.now()}-${Math.random().toString(36).substr(2, 10)}`;
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
+
+function getTapLog() {
+  try {
+    const raw = localStorage.getItem(LOG_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    console.error('Fout bij lezen log', e);
+    return [];
+  }
+}
+
+function saveTapLog(entries) {
+  localStorage.setItem(LOG_KEY, JSON.stringify(entries));
+}
+
+function logTap(item, source, extra = {}) {
+  const now = new Date().toISOString();
+  const deviceId = getDeviceId();
+  const navTrail = path.map(p => p.label);
+  const entry = {
+    timestamp: now,
+    deviceId,
+    source,
+    categoryPath: [...navTrail, item.label],
+    itemLabel: item.label,
+    itemId: item.id || null,
+    itemEmoji: item.emoji || null,
+    itemSay: item.say || null,
+    currentTheme: currentTheme,
+    ...extra,
+  };
+  const logs = getTapLog();
+  logs.push(entry);
+  saveTapLog(logs);
+  console.debug('Tap logged', entry);
+}
+
+function clearTapLogs() {
+  localStorage.removeItem(LOG_KEY);
+}
+
+async function saveLogsToFolder() {
+  if (!('showDirectoryPicker' in window)) {
+    throw new Error('Bestandsmap kiezen wordt niet ondersteund in deze browser.');
+  }
+  const dir = await window.showDirectoryPicker();
+  const fileHandle = await dir.getFileHandle('tap_logs.json', { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(JSON.stringify(getTapLog(), null, 2));
+  await writable.close();
+}
+
+function downloadLogsAsFile() {
+  const data = JSON.stringify(getTapLog(), null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'tap_logs.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function exportLogs() {
+  try {
+    const logs = getTapLog();
+    if (!logs || logs.length === 0) {
+      alert('Geen logs om te exporteren.');
+      return;
+    }
+    
+    // Try to upload to Supabase first
+    const config = getSupabaseConfig();
+    if (config) {
+      try {
+        await uploadToSupabase(logs);
+        alert(`✅ ${logs.length} logs succesvol naar Supabase geüpload!`);
+        clearTapLogs();
+        return;
+      } catch (supabaseError) {
+        console.warn('Supabase upload failed:', supabaseError);
+        const continueOffline = confirm(`Supabase upload mislukt: ${supabaseError.message}\n\nWil je in plaats daarvan lokaal downloaden?`);
+        if (!continueOffline) return;
+      }
+    }
+    
+    // Fallback: try File System Access API
+    try {
+      await saveLogsToFolder();
+      alert(`✅ ${logs.length} logs succesvol lokaal weggeschreven.`);
+      clearTapLogs();
+    } catch (fsError) {
+      console.warn('File System API niet beschikbaar:', fsError);
+      // Final fallback: download as file
+      downloadLogsAsFile();
+      alert(`✅ ${logs.length} logs gedownload als tap_logs.json.\nVerplaats bestand naar Logs folder.`);
+      clearTapLogs();
+    }
+  } catch (error) {
+    console.error('Export error:', error);
+    alert(`❌ Exporteren mislukt: ${error.message}`);
+  }
+}
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let path = []; // stack of { items, label, theme }
+let currentItems = tree;
+let currentTheme = 'green';
+let currentText = '';
+let selectedCard = null;
+let synth = window.speechSynthesis;
+let viewStartTime = Date.now();
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+function init() {
+  renderFavs();
+  renderBreadcrumb();
+  renderGrid(tree, null);
+}
+
+function renderFavs() {
+  const c = document.getElementById('favChips');
+  c.innerHTML = '';
+  FAVORITES.forEach(t => {
+    const el = document.createElement('div');
+    el.className = 'fav-chip';
+    el.textContent = t;
+    el.onclick = () => {
+      const time_to_tap_ms = Date.now() - viewStartTime;
+      logTap({ label: t, emoji: '⭐', id: 'favorite' }, 'favorite', { actionType: 'favorite', time_to_tap_ms });
+      setSpeech(t);
+    };
+    c.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function navigate(item) {
+  if (item.say) {
+    // Leaf — speak it
+    setSpeech(item.say);
+    if (selectedCard) selectedCard.classList.remove('selected');
+    // find card and highlight
+    return;
+  }
+  if (item.children) {
+    path.push({ items: currentItems, label: item.label, theme: currentTheme });
+    currentTheme = item.theme || currentTheme;
+    renderBreadcrumb();
+    renderGrid(item.children, item.theme || currentTheme);
+  }
+}
+
+function goBack() {
+  if (path.length === 0) return;
+  const prev = path.pop();
+  currentTheme = path.length > 0 ? path[path.length-1].theme || 'green' : 'green';
+  renderBreadcrumb();
+  renderGrid(prev.items, currentTheme);
+}
+
+function goTo(index) {
+  // Navigate to a specific breadcrumb level
+  while (path.length > index) path.pop();
+  if (path.length === 0) {
+    currentTheme = 'green';
+    renderBreadcrumb();
+    renderGrid(tree, null);
+  } else {
+    const prev = path[path.length-1];
+    currentTheme = prev.theme || 'green';
+    renderBreadcrumb();
+    // We need to re-navigate from root
+    let items = tree;
+    for (let i = 0; i < path.length; i++) {
+      const match = items.find(it => it.label === path[i].label && it.children);
+      if (match) items = match.children;
+    }
+    renderGrid(items, currentTheme);
+  }
+}
+
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
+function renderBreadcrumb() {
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = '';
+
+  const home = document.createElement('span');
+  home.className = 'crumb';
+  home.textContent = '🏠 Thuis';
+  home.onclick = () => { path = []; renderBreadcrumb(); renderGrid(tree, null); };
+  bc.appendChild(home);
+
+  path.forEach((p, i) => {
+    const sep = document.createElement('span');
+    sep.className = 'crumb-sep';
+    sep.textContent = '›';
+    bc.appendChild(sep);
+
+    const crumb = document.createElement('span');
+    crumb.className = 'crumb' + (i === path.length-1 ? ' active' : '');
+    crumb.textContent = p.label;
+    crumb.onclick = () => goTo(i+1);
+    bc.appendChild(crumb);
+  });
+}
+
+function renderGrid(items, theme) {
+  currentItems = items;
+  selectedCard = null;
+
+  const backWrap = document.getElementById('backWrap');
+  if (path.length > 0) {
+    backWrap.innerHTML = `<button class="back-btn" onclick="goBack()">‹ Terug</button>`;
+  } else {
+    backWrap.innerHTML = '';
+  }
+
+  viewStartTime = Date.now();
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  // Use 2-col for top level (fewer, bigger), 3-col for deeper levels
+  grid.className = 'grid' + (path.length === 0 ? ' two-col' : '');
+
+  items.forEach(item => {
+    const card = document.createElement('div');
+    const t = item.theme || theme || 'green';
+    card.className = 'card' + (item.children ? ' has-children' : '');
+    card.dataset.theme = t;
+    card.innerHTML = `
+      <div class="card-emoji">${item.emoji}</div>
+      <div class="card-label">${item.label}</div>
+      ${item.children ? `<div class="card-sub">${item.children.length} opties</div>` : ''}
+    `;
+    card.onclick = () => {
+      const action = item.say ? 'leaf' : 'folder';
+      const time_to_tap_ms = Date.now() - viewStartTime;
+      logTap(item, 'grid', { actionType: action, path: path.map(p => p.label), time_to_tap_ms });
+      if (item.say) {
+        if (selectedCard) selectedCard.classList.remove('selected');
+        selectedCard = card;
+        card.classList.add('selected');
+      }
+      navigate(item);
+    };
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════
+// SPEECH
+// ═══════════════════════════════════════════
+function setSpeech(text) {
+  currentText = text;
+  const el = document.getElementById('speechText');
+  el.textContent = text;
+  el.classList.remove('placeholder');
+  document.getElementById('speechArea').classList.add('has-text');
+  document.getElementById('speakBtn').disabled = false;
+  document.getElementById('clearBtn').style.display = 'inline-flex';
+  speakText();
+}
+
+function clearSpeech() {
+  currentText = '';
+  if (selectedCard) { selectedCard.classList.remove('selected'); selectedCard = null; }
+  const el = document.getElementById('speechText');
+  el.textContent = 'Tik een onderwerp...';
+  el.classList.add('placeholder');
+  document.getElementById('speechArea').classList.remove('has-text');
+  document.getElementById('speakBtn').disabled = true;
+  document.getElementById('clearBtn').style.display = 'none';
+  synth.cancel();
+}
+
+function speakText() {
+  if (!currentText) return;
+  synth.cancel();
+  const btn = document.getElementById('speakBtn');
+  btn.classList.add('speaking');
+  const utt = new SpeechSynthesisUtterance(currentText);
+  utt.lang = 'nl-NL';
+  utt.rate = 0.88;
+  utt.pitch = 0.95;
+  const voices = synth.getVoices();
+  const dutch = voices.find(v => v.lang.startsWith('nl'));
+  if (dutch) utt.voice = dutch;
+  utt.onend = () => btn.classList.remove('speaking');
+  utt.onerror = () => btn.classList.remove('speaking');
+  synth.speak(utt);
+}
+
+if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = () => {};
+
+init();
+</script>
+</body>
+</html>
