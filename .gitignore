@@ -5,7 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
-C:\Users\ewout\AIphasia\SUPABASE_KEY.env
+SUPABASE_KEY.env
 .env
 
 # Virtual environments
