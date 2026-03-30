@@ -297,36 +297,39 @@ header {
 <div id="backWrap"></div>
 <div class="grid-wrap"><div class="grid" id="grid"></div></div>
 
-<script src="/Data/data-tree.js"></script>
-
 <script>
 (function() {
-  // Wait for the script to load and tree to be available
-  let attempts = 0;
-  function checkTree() {
-    if ((window.tree && window.tree.length > 0) || window.treeLoaded) {
-      init();
-    } else if (attempts < 50) { // Max 500ms
-      attempts++;
-      setTimeout(checkTree, 10);
-    } else {
-      console.error('Tree data not loaded after 500ms, trying fallback');
-      // Fallback: try loading with relative path
-      const script = document.createElement('script');
-      script.src = 'Data/data-tree.js';
-      script.onload = function() {
-        setTimeout(function() {
-          if ((window.tree && window.tree.length > 0) || window.treeLoaded) {
-            init();
-          } else {
-            console.error('Fallback also failed');
-          }
-        }, 10);
-      };
-      document.head.appendChild(script);
-    }
-  }
-  checkTree();
+  const script = document.createElement('script');
+  script.src = '/Data/data-tree.js';
+  script.onload = function() {
+    // Script loaded, tree should be available
+    setTimeout(function() {
+      if ((window.tree && window.tree.length > 0) || window.treeLoaded) {
+        init();
+      } else {
+        console.error('Tree data not available after script load');
+      }
+    }, 1);
+  };
+  script.onerror = function() {
+    console.error('Failed to load /Data/data-tree.js, trying relative path');
+    const fallbackScript = document.createElement('script');
+    fallbackScript.src = 'Data/data-tree.js';
+    fallbackScript.onload = function() {
+      setTimeout(function() {
+        if ((window.tree && window.tree.length > 0) || window.treeLoaded) {
+          init();
+        } else {
+          console.error('Fallback also failed');
+        }
+      }, 1);
+    };
+    fallbackScript.onerror = function() {
+      console.error('Failed to load Data/data-tree.js from all paths');
+    };
+    document.head.appendChild(fallbackScript);
+  };
+  document.head.appendChild(script);
 })();
 </script>
 const tree = window.tree || [];
