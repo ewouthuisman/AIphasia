@@ -1,8 +1,10 @@
 import pandas as pd
 from supabase import create_client
 
+import os
+
 SUPABASE_URL  = 'https://absdasswruhhtaguenfz.supabase.co'
-SUPABASE_KEY  = 'sb_secret_d-lyWvAvH2zXMaswqRz3qw_dpRrUagE';
+SUPABASE_KEY = os.getenv("SUPABASE_KEY");
 
 client = create_client(SUPABASE_URL, SUPABASE_KEY)
 data = client.table('tap_logs').select('*').execute()
