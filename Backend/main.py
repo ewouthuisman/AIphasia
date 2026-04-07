@@ -1,12 +1,21 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
 import json
+import re
 
 API_KEY = "AIzaSyAkBC9PGLXUtu1KdmmMwTma-NZy9NNsOJI"
 client = genai.Client(api_key=API_KEY)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["POST", "GET"],
+    allow_headers=["*"],
+)
 
 system_prompt = """You are an assistive communication AI designed for a 65-year-old Dutch-speaking man with aphasia (specifically word-finding difficulty / anomic aphasia).
 ## Core Goal
@@ -120,31 +129,19 @@ def chat(req: Request):
             contents=req.prompt,
             system_instruction=system_prompt
         )
-        # Gemini may return structured output; try to get text directly
-        text_output = None
-        if hasattr(response, 'output_text') and response.output_text:
-            text_output = response.output_text
-        elif hasattr(response, 'output') and response.output:
-            # Example fallback via nested list/objects
-            try:
-                text_output = response.output[0].content[0].text
-            except Exception:
-                text_output = str(response.output)
+        text_output = response.text if response.text else ''
 
-        if not text_output:
-            text_output = ''
+        # Strip optional markdown code fences (```json ... ```)
+        cleaned = re.sub(r'```(?:json)?\s*', '', text_output).strip()
 
-        # If response is JSON array already, parse it; else return split options
         try:
-            sentences = json.loads(text_output)
+            sentences = json.loads(cleaned)
             if not isinstance(sentences, list):
                 sentences = [str(sentences)]
         except Exception:
-            # Simple split by newline if possible
-            sentences = text_output.split('\n') if '\n' in text_output else [text_output]
-            sentences = [s.strip() for s in sentences if s.strip()]
+            sentences = [s.strip() for s in cleaned.split('\n') if s.strip()]
 
-        if len(sentences) == 0:
+        if not sentences:
             sentences = ["Ik begrijp het niet goed. Kun je het nog eens proberen?"]
 
         return {"suggestions": sentences}

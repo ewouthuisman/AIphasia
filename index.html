@@ -247,6 +247,82 @@ header {
   font-weight: 600;
 }
 
+/* AI INPUT BAR */
+.ai-input-bar {
+  margin: 10px 16px 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.ai-input {
+  flex: 1;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.ai-input:focus { border-color: var(--accent-light); }
+.ai-input::placeholder { color: var(--text-muted); font-weight: 400; }
+.ai-send-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 12px 18px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.ai-send-btn:active { transform: scale(0.95); }
+.ai-send-btn:disabled { background: #bbb; cursor: default; }
+
+/* AI SUGGESTIONS PANEL */
+.suggestions-bar {
+  margin: 10px 16px 0;
+  display: none;
+}
+.suggestions-bar.visible { display: block; }
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.suggestion-btn {
+  background: var(--card);
+  border: 2px solid var(--accent-light);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.4;
+  transition: all 0.15s;
+}
+.suggestion-btn:active, .suggestion-btn:hover {
+  background: var(--accent-pale);
+  border-color: var(--accent);
+  transform: scale(0.98);
+}
+.suggestion-loading {
+  text-align: center;
+  padding: 14px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
 @media (max-width: 480px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -267,6 +343,16 @@ header {
   </div>
 </div>
 
+<div class="ai-input-bar">
+  <input class="ai-input" id="aiInput" type="text" placeholder="✏️ Typ een woord of zin…" autocomplete="off" autocorrect="off" spellcheck="false"/>
+  <button class="ai-send-btn" id="aiSendBtn" onclick="handleAIInput()">AI →</button>
+</div>
+
+<div class="suggestions-bar" id="suggestionsBar">
+  <div class="section-label">🤖 AI Suggesties</div>
+  <div class="suggestions-list" id="suggestionsList"></div>
+</div>
+
 <div class="fav-bar">
   <div class="section-label">⭐ Snel</div>
   <div class="fav-chips" id="favChips"></div>
@@ -278,6 +364,156 @@ header {
 <!-- Load data tree first, then app logic -->
 <script src="Data/data-tree.js"></script>
 <script>
+// ═══════════════════════════════════════════════════════
+// GEMINI AI CONFIGURATION
+// ═══════════════════════════════════════════════════════
+const GEMINI_API_KEY = 'AIzaSyAkBC9PGLXUtu1KdmmMwTma-NZy9NNsOJI';
+const GEMINI_MODEL   = 'gemini-2.0-flash';
+const GEMINI_URL     = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+const AI_SYSTEM_PROMPT = `Je bent een hulp-communicatie AI voor een Nederlandssprekende man van 65 jaar met afasie (woordvindingsproblemen).
+
+## Doel
+Help de gebruiker uitdrukken wat hij wil zeggen. Hij begrijpt taal goed, maar kan moeilijk de juiste woorden vinden. Zet zijn invoer om in 2–4 duidelijke, natuurlijke Nederlandse zinnen.
+
+## Regels
+- Geef altijd 2–4 korte, direct uitsprekbare zinnen (5–10 woorden)
+- Gebruik alledaags Nederlands, passend voor een 65-jarige man
+- Blijf dicht bij de invoer; voeg geen nieuwe betekenis toe
+- Geen uitleg, geen vragen, geen Engelse tekst
+- Gebruik "Ik wil...", "Kun je...", "Mag ik..." constructies
+
+## Uitvoerformaat
+Geef ALLEEN een JSON-array:
+["zin 1", "zin 2", "zin 3"]
+
+## Voorbeelden
+
+Invoer: Drinken > kof
+Uitvoer: ["Ik wil graag een kop koffie.", "Mag ik een kop koffie?", "Kun je koffie voor me maken?"]
+
+Invoer: pijn
+Uitvoer: ["Ik heb pijn.", "Het doet pijn.", "Ik voel me niet goed."]
+
+Invoer: Lobke > vraag
+Uitvoer: ["Kun je Lobke voor me bellen?", "Is Lobke er vandaag?", "Geef een berichtje aan Lobke."]`;
+
+/**
+ * Returns true when a hardcoded `say` value is just a placeholder.
+ */
+function isPlaceholder(say) {
+  if (!say) return true;
+  const lc = say.toLowerCase();
+  return lc.startsWith('placeholder') || lc.includes('question to be defined');
+}
+
+/**
+ * Call Gemini directly from the browser and return an array of sentence suggestions.
+ */
+async function fetchAISuggestions(prompt) {
+  const body = {
+    system_instruction: { parts: [{ text: AI_SYSTEM_PROMPT }] },
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 256 }
+  };
+
+  const res = await fetch(GEMINI_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) throw new Error(`Gemini API ${res.status}`);
+
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+
+  // Strip optional markdown fences
+  const cleaned = text.replace(/```(?:json)?\s*/g, '').replace(/```\s*/g, '').trim();
+
+  const parsed = JSON.parse(cleaned);
+  return Array.isArray(parsed) ? parsed : [String(parsed)];
+}
+
+/**
+ * Build a human-readable prompt from the current navigation path + item label.
+ */
+function buildAIPrompt(itemLabel, extraContext) {
+  const parts = [...pathLabels()];
+  if (itemLabel) parts.push(itemLabel);
+  const path = parts.join(' > ');
+  return extraContext ? `${path}\n${extraContext}` : path;
+}
+
+// ── AI suggestions panel helpers ────────────────────────────────────────────
+
+function showSuggestionsLoading() {
+  const bar  = document.getElementById('suggestionsBar');
+  const list = document.getElementById('suggestionsList');
+  list.innerHTML = '<div class="suggestion-loading">🤖 Even denken…</div>';
+  bar.classList.add('visible');
+}
+
+function renderSuggestions(sentences) {
+  const bar  = document.getElementById('suggestionsBar');
+  const list = document.getElementById('suggestionsList');
+  list.innerHTML = '';
+  sentences.forEach(sentence => {
+    const btn = document.createElement('button');
+    btn.className = 'suggestion-btn';
+    btn.textContent = sentence;
+    btn.onclick = () => {
+      logTap('ai_suggestion_selected', { label: sentence, say: sentence }, [...pathLabels()], 'ai');
+      setSpeech(sentence);
+      hideSuggestions();
+    };
+    list.appendChild(btn);
+  });
+  bar.classList.add('visible');
+}
+
+function hideSuggestions() {
+  document.getElementById('suggestionsBar').classList.remove('visible');
+  document.getElementById('suggestionsList').innerHTML = '';
+}
+
+/**
+ * Trigger AI suggestion generation and show results.
+ * Falls back silently on error.
+ */
+async function triggerAISuggestions(prompt) {
+  showSuggestionsLoading();
+  try {
+    const sentences = await fetchAISuggestions(prompt);
+    renderSuggestions(sentences);
+  } catch (err) {
+    console.warn('[AI suggestions failed]', err);
+    hideSuggestions();
+  }
+}
+
+/**
+ * Handle the free-text AI input bar ("AI →" button).
+ */
+async function handleAIInput() {
+  const input = document.getElementById('aiInput');
+  const text  = input.value.trim();
+  if (!text) return;
+  const btn = document.getElementById('aiSendBtn');
+  btn.disabled = true;
+  const prompt = buildAIPrompt(null, text);
+  await triggerAISuggestions(prompt);
+  btn.disabled = false;
+}
+
+// Allow pressing Enter in the text field
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('aiInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleAIInput();
+  });
+});
+
+
 // ═══════════════════════════════════════════════════════
 // SUPABASE CONFIG
 // Replace these two values with your own from supabase.com
@@ -401,12 +637,20 @@ function pathLabels() {
 
 function navigate(item) {
   if (item.say) {
-    // Leaf node — speak it
     logTap('phrase_selected', item, [...pathLabels(), item.label], 'grid');
-    setSpeech(item.say);
+
+    if (isPlaceholder(item.say)) {
+      // Placeholder phrase → get AI suggestions without pre-filling speech
+      triggerAISuggestions(buildAIPrompt(item.label));
+    } else {
+      // Real phrase → speak it immediately AND offer AI alternatives
+      setSpeech(item.say);
+      triggerAISuggestions(buildAIPrompt(item.label));
+    }
     return;
   }
   if (item.children) {
+    hideSuggestions();
     logTap('category_opened', item, [...pathLabels(), item.label], 'grid');
     navPath.push({ items: currentItems, label: item.label, theme: currentTheme });
     currentTheme = item.theme || currentTheme;
@@ -418,6 +662,7 @@ function navigate(item) {
 function goBack() {
   if (navPath.length === 0) return;
   logTap('back', null, pathLabels(), 'navigation');
+  hideSuggestions();
   const prev = navPath.pop();
   currentTheme = navPath.length > 0 ? (navPath[navPath.length - 1].theme || 'green') : 'green';
   renderBreadcrumb();
@@ -426,6 +671,7 @@ function goBack() {
 
 function goTo(index) {
   // Breadcrumb jump — trim path to `index` entries
+  hideSuggestions();
   while (navPath.length > index) navPath.pop();
   if (navPath.length === 0) {
     currentTheme = 'green';
@@ -457,6 +703,7 @@ function renderBreadcrumb() {
   home.onclick = () => {
     logTap('back', null, pathLabels(), 'breadcrumb');
     navPath = [];
+    hideSuggestions();
     renderBreadcrumb();
     renderGrid(window.tree, null);
   };
@@ -536,6 +783,8 @@ function clearSpeech() {
   document.getElementById('speakBtn').disabled = true;
   document.getElementById('clearBtn').style.display = 'none';
   synth.cancel();
+  hideSuggestions();
+  document.getElementById('aiInput').value = '';
 }
 
 function speakText() {
