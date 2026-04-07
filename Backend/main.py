@@ -3,9 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
 import json
+import os
 import re
 
-API_KEY = "AIzaSyAkBC9PGLXUtu1KdmmMwTma-NZy9NNsOJI"
+API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAkBC9PGLXUtu1KdmmMwTma-NZy9NNsOJI")
 client = genai.Client(api_key=API_KEY)
 
 app = FastAPI()
@@ -131,8 +132,9 @@ def chat(req: Request):
         )
         text_output = response.text if response.text else ''
 
-        # Strip optional markdown code fences (```json ... ```)
-        cleaned = re.sub(r'```(?:json)?\s*', '', text_output).strip()
+        # Strip optional markdown code fences (```json ... ``` or ``` ... ```)
+        cleaned = re.sub(r'```(?:json)?\s*([\s\S]*?)```', r'\1', text_output)
+        cleaned = re.sub(r'```(?:json)?|```', '', cleaned).strip()
 
         try:
             sentences = json.loads(cleaned)

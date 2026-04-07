@@ -428,8 +428,8 @@ async function fetchAISuggestions(prompt) {
   const data = await res.json();
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
-  // Strip optional markdown fences
-  const cleaned = text.replace(/```(?:json)?\s*/g, '').replace(/```\s*/g, '').trim();
+  // Strip optional markdown fences (```json...``` or ```...```)
+  const cleaned = text.replace(/```(?:json)?\s*([\s\S]*?)```/g, '$1').replace(/```(?:json)?|```/g, '').trim();
 
   const parsed = JSON.parse(cleaned);
   return Array.isArray(parsed) ? parsed : [String(parsed)];
